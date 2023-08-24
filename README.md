@@ -1,2 +1,7 @@
 # PAM_repo
-data and R scripts to analyze it
+
+-  raw data
+-  R scripts to tidy data
+-  tidy data
+-  R scripts to analyze data and generate figures
+-  figures
