@@ -49,7 +49,8 @@ library(readxl)
   pr <- tidy_base %>% select(pr1:pr9) %>% apply(1, mean)
   conc <- tidy_base %>% select(conc)
   
-  tidy_Hg_Hlim <- bind_cols(time, conc, od, flu, phi, gr, pr) %>% 
+  tidy_Hg_Hlim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                            od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Hg", "od", "fluorescence", 
                 "phi", "growth_rate", "production_rate"))
   

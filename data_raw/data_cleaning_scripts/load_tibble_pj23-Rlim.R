@@ -1,15 +1,19 @@
+library(magrittr)
+setwd(paste0(getwd(), "/data_raw/"))
 {
+  
+  library(readxl)
   cn <- c("time", paste0("od", 1:6), "-", "-", "-", "time2", paste0("flu", 1:6))
   con <- c(0,2,4,8,12)
   
   
   
   # Assuming the file is in current working directory
-  for(i in 1:length(con)){
+  for(i in seq_along(con)){
     tab <- read_excel("MG1655pj23_Rlim.xlsx", sheet = i) 
     tab <- tab %>%  set_names(cn)
     t <- tab %>% select(time)
-    od <- tab %>% select(od1:od6) %>% mutate_all(~.0.1)
+    od <- tab %>% select(od1:od6) %>% mutate_all(~.-0.1)
     flu <- tab %>% select(flu1:flu6)
     phi <- flu/od
     
@@ -53,16 +57,26 @@
     set_names(names)
   
   time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
   od <- tidy_base %>% select(od1:od3) %>% apply(1, mean)
   flu <- tidy_base %>% select(flu1:flu3) %>% apply(1, mean)
   phi <- tidy_base %>% select(phi1:phi3) %>% apply(1, mean)
   gr <- tidy_base %>% select(gr1:gr3) %>% apply(1, mean)
   pr <- tidy_base %>% select(pr1:pr3) %>% apply(1, mean)
-  conc <- tidy_base %>% select(conc)
   
-  tidy_j23_Rlim <- bind_cols(time, conc, od, flu, phi, gr, pr) %>% 
+  od_se <- tidy_base %>% select(od1:od3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  flu_se <- tidy_base %>% select(flu1:flu3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  phi_se <- tidy_base %>% select(phi1:phi3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  gr_se <- tidy_base %>% select(gr1:gr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  pr_se <- tidy_base %>% select(pr1:pr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  
+  tidy_j23_Rlim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                             od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                "phi", "growth_rate", "production_rate",
+                "od_se", "fluorescence_se", 
+                "phi_se", "growth_rate_se", "production_rate_se"))
   
   #-----------------------------------------------------------------------------------------------
   tidy_base_bl <- bind_rows(base_bl1, base_bl2, base_bl3, base_bl4, 
@@ -70,15 +84,25 @@
     set_names(names)
   
   time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
   od <- tidy_base %>% select(od1:od3) %>% apply(1, mean)
   flu <- tidy_base %>% select(flu1:flu3) %>% apply(1, mean)
   phi <- tidy_base %>% select(phi1:phi3) %>% apply(1, mean)
   gr <- tidy_base %>% select(gr1:gr3) %>% apply(1, mean)
   pr <- tidy_base %>% select(pr1:pr3) %>% apply(1, mean)
-  conc <- tidy_base %>% select(conc)
   
-  j23_Rlim_tidy_bl <- bind_cols(time, conc, od, flu, phi, gr, pr) %>% 
+  od_se <- tidy_base %>% select(od1:od3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  flu_se <- tidy_base %>% select(flu1:flu3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  phi_se <- tidy_base %>% select(phi1:phi3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  gr_se <- tidy_base %>% select(gr1:gr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  pr_se <- tidy_base %>% select(pr1:pr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  
+  j23_Rlim_tidy_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                                od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                 "phi", "growth_rate", "production_rate",
+                 "od_se", "fluorescence_se", 
+                 "phi_se", "growth_rate_se", "production_rate_se"))
   
 }

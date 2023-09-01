@@ -76,7 +76,8 @@ library(readxl)
   pr <- tidy_base %>% select(pr1:pr3) %>% apply(1, mean)
   conc <- tidy_base %>% select(conc)
   
-  DE3_Rlim_tidy_bl <- bind_cols(time, conc, od, flu, phi, gr, pr) %>% 
+  DE3_Rlim_tidy_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                                od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
                 "phi", "growth_rate", "production_rate"))
   

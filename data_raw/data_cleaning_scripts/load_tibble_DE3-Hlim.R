@@ -101,7 +101,8 @@ setwd(paste0(getwd(), "/data_raw"))
     conc <- tidy_base %>% select(conc)
     strain <- tidy_base %>% select(strain)
     
-    BL21lacIpT7_Hlim_all <- bind_cols(time, strain, conc, od, flu, phi, gr, pr) %>% 
+    BL21lacIpT7_Hlim_all <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                                      od_se, flu_se, phi_se, gr_se, pr_se) %>% 
       set_names(c("time", "strain", "iptg", "od", "fluorescence", 
                   "phi", "growth_rate", "production_rate"))
 }

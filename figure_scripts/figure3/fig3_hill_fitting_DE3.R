@@ -6,13 +6,6 @@ library(pracma)
 s <- c("MG1655", "MG1655 lacI", "BLR", "BLR lacI", "BL21 lacI")
 
 #------------------------ non-linear regression --------------------------------------------
-plateau <- function(x){
-  diff <- eDiff(x)
-  diff <- abs(diff)
-  n <- which.min(diff)
-  x[n]
-}
-
 {
 options(digits = 10)                   
   for(i in 1:5){
