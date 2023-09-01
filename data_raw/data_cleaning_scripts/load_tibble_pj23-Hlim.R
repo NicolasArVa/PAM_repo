@@ -56,7 +56,7 @@ library(readxl)
   
   tidy_j23_Hlim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                              od_se, flu_se, phi_se, gr_se, pr_se) %>% 
-    set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
+    set_names(c("time", "cumate", "od", "fluorescence", 
                 "phi", "growth_rate", "production_rate",
                 "od_se", "fluorescence_se", 
                 "phi_se", "growth_rate_se", "production_rate_se"))

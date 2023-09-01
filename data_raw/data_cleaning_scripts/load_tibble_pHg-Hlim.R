@@ -42,16 +42,25 @@ library(readxl)
     set_names(names)
   
   time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
   od <- tidy_base %>% select(od1:od9) %>% apply(1, mean)
   flu <- tidy_base %>% select(flu1:flu9) %>% apply(1, mean)
   phi <- tidy_base %>% select(phi1:phi9) %>% apply(1, mean)
   gr <- tidy_base %>% select(gr1:gr9) %>% apply(1, mean)
   pr <- tidy_base %>% select(pr1:pr9) %>% apply(1, mean)
-  conc <- tidy_base %>% select(conc)
+  
+  od_se <- tidy_base %>% select(od1:od9) %>% apply(1, sd) %>% divide_by(sqrt(9))
+  flu_se <- tidy_base %>% select(flu1:flu9) %>% apply(1, sd) %>% divide_by(sqrt(9))
+  phi_se <- tidy_base %>% select(phi1:phi9) %>% apply(1, sd) %>% divide_by(sqrt(9))
+  gr_se <- tidy_base %>% select(gr1:gr9) %>% apply(1, sd) %>% divide_by(sqrt(9))
+  pr_se <- tidy_base %>% select(pr1:pr9) %>% apply(1, sd) %>% divide_by(sqrt(9))
   
   tidy_Hg_Hlim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                             od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Hg", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                "phi", "growth_rate", "production_rate",
+                "od_se", "fluorescence_se", 
+                "phi_se", "growth_rate_se", "production_rate_se"))
   
 }

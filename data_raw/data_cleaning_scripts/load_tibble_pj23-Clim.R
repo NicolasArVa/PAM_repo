@@ -1,5 +1,7 @@
 library(tidyverse)
 library(readxl)
+library(magrittr)
+setwd("~/R_Projects/PAM_repo/data_raw/")
 {
   cn <- c("time", paste0("od", 1:6), rep("-",3), "time2", paste0("flu", 1:6))
   con <- c("Ace", "Ace caa", "Gly" , "Glu", "Gly caa" , "Glu caa")
@@ -66,7 +68,7 @@ library(readxl)
   
   tidy_j23_Clim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                              od_se, flu_se, phi_se, gr_se, pr_se) %>% 
-    set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
+    set_names(c("time", "n_source", "od", "fluorescence", 
                 "phi", "growth_rate", "production_rate",
                 "od_se", "fluorescence_se", 
                 "phi_se", "growth_rate_se", "production_rate_se"))
@@ -93,7 +95,7 @@ library(readxl)
   
   tidy_j23_Clim_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                                 od_se, flu_se, phi_se, gr_se, pr_se) %>% 
-    set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
+    set_names(c("time", "n_source", "od", "fluorescence", 
                 "phi", "growth_rate", "production_rate",
                 "od_se", "fluorescence_se", 
                 "phi_se", "growth_rate_se", "production_rate_se"))

@@ -55,31 +55,50 @@ library(readxl)
     set_names(names)
   
   time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
   od <- tidy_base %>% select(od1:od6) %>% apply(1, mean)
   flu <- tidy_base %>% select(flu1:flu6) %>% apply(1, mean)
   phi <- tidy_base %>% select(phi1:phi6) %>% apply(1, mean)
   gr <- tidy_base %>% select(gr1:gr6) %>% apply(1, mean)
   pr <- tidy_base %>% select(pr1:pr6) %>% apply(1, mean)
-  conc <- tidy_base %>% select(conc)
+  
+  od_se <- tidy_base %>% select(od1:od6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  flu_se <- tidy_base %>% select(flu1:flu6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  phi_se <- tidy_base %>% select(phi1:phi6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  gr_se <- tidy_base %>% select(gr1:gr6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  pr_se <- tidy_base %>% select(pr1:pr6) %>% apply(1, sd) %>% divide_by(sqrt(6))
 
-  tidy_DE3_Clim <- bind_cols(time, conc, od, flu, phi, gr, pr) %>% 
+  tidy_DE3_Clim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                             od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "n_source", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                "phi", "growth_rate", "production_rate",
+                "od_se", "fluorescence_se", 
+                "phi_se", "growth_rate_se", "production_rate_se"))
   
   #-----------------------------------------------------------------------------------------------
   
   
-  time <- tidy_base_bl %>% select(time)
-  od <- tidy_base_bl %>% select(od1:od6) %>% apply(1, mean)
-  flu <- tidy_base_bl %>% select(flu1:flu6) %>% apply(1, mean)
-  phi <- tidy_base_bl %>% select(phi1:phi6) %>% apply(1, mean)
-  gr <- tidy_base_bl %>% select(gr1:gr6) %>% apply(1, mean)
-  pr <- tidy_base_bl %>% select(pr1:pr6) %>% apply(1, mean)
-  conc <- tidy_base_bl %>% select(conc)
+  time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
+  od <- tidy_base %>% select(od1:od6) %>% apply(1, mean)
+  flu <- tidy_base %>% select(flu1:flu6) %>% apply(1, mean)
+  phi <- tidy_base %>% select(phi1:phi6) %>% apply(1, mean)
+  gr <- tidy_base %>% select(gr1:gr6) %>% apply(1, mean)
+  pr <- tidy_base %>% select(pr1:pr6) %>% apply(1, mean)
+  
+  od_se <- tidy_base %>% select(od1:od6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  flu_se <- tidy_base %>% select(flu1:flu6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  phi_se <- tidy_base %>% select(phi1:phi6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  gr_se <- tidy_base %>% select(gr1:gr6) %>% apply(1, sd) %>% divide_by(sqrt(6))
+  pr_se <- tidy_base %>% select(pr1:pr6) %>% apply(1, sd) %>% divide_by(sqrt(6))
   
   DE3_Clim_tidy_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                                 od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "n_source", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                "phi", "growth_rate", "production_rate",
+                "od_se", "fluorescence_se", 
+                "phi_se", "growth_rate_se", "production_rate_se"))
   
 }

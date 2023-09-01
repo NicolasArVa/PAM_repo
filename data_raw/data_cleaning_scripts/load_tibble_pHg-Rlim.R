@@ -53,16 +53,26 @@ library(readxl)
     set_names(names)
   
   time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
   od <- tidy_base %>% select(od1:od3) %>% apply(1, mean)
   flu <- tidy_base %>% select(flu1:flu3) %>% apply(1, mean)
   phi <- tidy_base %>% select(phi1:phi3) %>% apply(1, mean)
   gr <- tidy_base %>% select(gr1:gr3) %>% apply(1, mean)
   pr <- tidy_base %>% select(pr1:pr3) %>% apply(1, mean)
-  conc <- tidy_base %>% select(conc)
   
-  tidy_Hg_Rlim <- bind_cols(time, conc, od, flu, phi, gr, pr) %>% 
+  od_se <- tidy_base %>% select(od1:od3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  flu_se <- tidy_base %>% select(flu1:flu3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  phi_se <- tidy_base %>% select(phi1:phi3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  gr_se <- tidy_base %>% select(gr1:gr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  pr_se <- tidy_base %>% select(pr1:pr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  
+  tidy_Hg_Rlim <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+                            od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                "phi", "growth_rate", "production_rate",
+                "od_se", "fluorescence_se", 
+                "phi_se", "growth_rate_se", "production_rate_se"))
   
   #-----------------------------------------------------------------------------------------------
   tidy_base_bl <- bind_rows(base_bl1, base_bl2, base_bl3, base_bl4, 
@@ -70,16 +80,25 @@ library(readxl)
     set_names(names)
   
   time <- tidy_base %>% select(time)
+  conc <- tidy_base %>% select(conc)
+  
   od <- tidy_base %>% select(od1:od3) %>% apply(1, mean)
   flu <- tidy_base %>% select(flu1:flu3) %>% apply(1, mean)
   phi <- tidy_base %>% select(phi1:phi3) %>% apply(1, mean)
   gr <- tidy_base %>% select(gr1:gr3) %>% apply(1, mean)
   pr <- tidy_base %>% select(pr1:pr3) %>% apply(1, mean)
-  conc <- tidy_base %>% select(conc)
+  
+  od_se <- tidy_base %>% select(od1:od3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  flu_se <- tidy_base %>% select(flu1:flu3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  phi_se <- tidy_base %>% select(phi1:phi3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  gr_se <- tidy_base %>% select(gr1:gr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
+  pr_se <- tidy_base %>% select(pr1:pr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
   
   tidy_Hg_Rlim_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                                od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate"))
+                 "phi", "growth_rate", "production_rate",
+                 "od_se", "fluorescence_se", 
+                 "phi_se", "growth_rate_se", "production_rate_se"))
   
 }

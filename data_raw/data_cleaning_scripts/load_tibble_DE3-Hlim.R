@@ -42,17 +42,27 @@ setwd(paste0(getwd(), "/data_raw"))
     
     
     time <- tidy_base %>% select(time)
+    conc <- tidy_base %>% select(conc)
+    strain <- tidy_base %>% select(strain)
+    
     od <- tidy_base %>% select(od1:od4) %>% apply(1, mean)
     flu <- tidy_base %>% select(flu1:flu4) %>% apply(1, mean)
     phi <- tidy_base %>% select(phi1:phi4) %>% apply(1, mean)
     gr <- tidy_base %>% select(gr1:gr4) %>% apply(1, mean)
     pr <- tidy_base %>% select(pr1:pr4) %>% apply(1, mean)
-    conc <- tidy_base %>% select(conc)
-    strain <- tidy_base %>% select(strain)
+
+    od_se <- tidy_base %>% select(od1:od4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    flu_se <- tidy_base %>% select(flu1:flu4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    phi_se <- tidy_base %>% select(phi1:phi4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    gr_se <- tidy_base %>% select(gr1:gr4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    pr_se <- tidy_base %>% select(pr1:pr4) %>% apply(1, sd) %>% divide_by(sqrt(4))
       
-    tab <- bind_cols(time, strain, conc, od, flu, phi, gr, pr) %>% 
+    tab <- bind_cols(time, strain, conc, od, flu, phi, gr, pr, 
+                     od_se, flu_se, phi_se, gr_se, pr_se) %>% 
       set_names(c("time", "strain", "iptg", "od", "fluorescence", 
-                  "phi", "growth_rate", "production_rate"))
+                  "phi", "growth_rate", "production_rate",
+                  "od_se", "fluorescence_se", 
+                  "phi_se", "growth_rate_se", "production_rate_se"))
     assign(s[j],tab)
     }
 }
@@ -93,22 +103,28 @@ setwd(paste0(getwd(), "/data_raw"))
       set_names(names)
     
     time <- tidy_base %>% select(time)
-    od <- tidy_base %>% select(od1:od8) %>% apply(1, mean)
-    flu <- tidy_base %>% select(flu1:flu8) %>% apply(1, mean)
-    phi <- tidy_base %>% select(phi1:phi8) %>% apply(1, mean)
-    gr <- tidy_base %>% select(gr1:gr8) %>% apply(1, mean)
-    pr <- tidy_base %>% select(pr1:pr8) %>% apply(1, mean)
     conc <- tidy_base %>% select(conc)
     strain <- tidy_base %>% select(strain)
     
-    BL21lacIpT7_Hlim_all <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+    od <- tidy_base %>% select(od1:od4) %>% apply(1, mean)
+    flu <- tidy_base %>% select(flu1:flu4) %>% apply(1, mean)
+    phi <- tidy_base %>% select(phi1:phi4) %>% apply(1, mean)
+    gr <- tidy_base %>% select(gr1:gr4) %>% apply(1, mean)
+    pr <- tidy_base %>% select(pr1:pr4) %>% apply(1, mean)
+    
+    od_se <- tidy_base %>% select(od1:od4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    flu_se <- tidy_base %>% select(flu1:flu4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    phi_se <- tidy_base %>% select(phi1:phi4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    gr_se <- tidy_base %>% select(gr1:gr4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    pr_se <- tidy_base %>% select(pr1:pr4) %>% apply(1, sd) %>% divide_by(sqrt(4))
+    
+    BL21lacIpT7_Hlim_all <- bind_cols(time, strain, conc, od, flu, phi, gr, pr, 
                                       od_se, flu_se, phi_se, gr_se, pr_se) %>% 
       set_names(c("time", "strain", "iptg", "od", "fluorescence", 
-                  "phi", "growth_rate", "production_rate"))
+                  "phi", "growth_rate", "production_rate",
+                  "od_se", "fluorescence_se", 
+                  "phi_se", "growth_rate_se", "production_rate_se"))
 }
-
-
-
 
 tidy_DE3_Hlim <- bind_rows(MG1655pT7_Hlim_all, MG1655lacIpT7_Hlim_all,
                            BLRpT7_Hlim_all, BLRlacIpT7_Hlim_all, 
