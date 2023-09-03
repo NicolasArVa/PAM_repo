@@ -2,10 +2,9 @@ library(tidyverse)
 library(ggpubr)
 library(expandFunctions)
 library(pracma)
-
-s <- c("MG1655", "MG1655 lacI", "BLR", "BLR lacI", "BL21 lacI")
 #------------------------ non-linear regression --------------------------------------------
 {
+  s <- c("MG1655", "MG1655 lacI", "BLR", "BLR lacI", "BL21 lacI")
   DE3predictions_list <-lapply(1:length(s), function(i){
     
     bl <- tidy_DE3_Hlim %>% 

@@ -17,41 +17,43 @@ library(minpack.lm)
     group_by(Hg) %>%
     summarize(phi = max(phi))
   
-  merR_fit <- nls(phi~a*(Hg /(Hg + b)), 
+  model <- nls(phi~a*(Hg /(Hg + b)), 
                     data = merR_tab,
                     start = list(a=2000, b=100), algorithm = 'port')
+  
+  hg <- 0:250
+  fi_hat <- predict(model, newdata = tibble(Hg = hg))
 
-  nls_merR <- merR_fit %>% 
-    summary() %>%
-    .$parameters %>% 
-    as_tibble() %>% 
-    mutate(parameter=c("a", "b"), .before = Estimate)
-  nls_merR
+  # Calculate standard errors for predictions using DELTA METHOD:
+  a <- coef(model)["a"]
+  b <- coef(model)["b"]
+  parameter_standard_errors <- sqrt(diag(vcov(model)))
   
-  a <- nls_merR%>% filter(parameter == "a") %>% pull(Estimate)
-  b <- nls_merR%>% filter(parameter == "b") %>% pull(Estimate)
+  prediction_error <- sqrt(
+    (hg / (hg + b))^2 * parameter_standard_errors["a"]^2 +
+      (a * hg / (hg + b)^2 )^2 * parameter_standard_errors["b"]^2 
+  )
   
-  hill_pHg <- function(x){ 
-    a*x/(x + b)
-    }
-  
-  tab <- hill_pHg(1:250)
-  tab_merR <- data.frame(Hg = c(1:250), H = tab)
-
+  tab_merR <- tibble(strain = s[i], Hg = hg, fi = fi_hat,
+         # Calculate lower and upper bounds for the confidence intervals
+         lower = fi_hat - qnorm(0.975) * prediction_error, 
+         upper = fi_hat + qnorm(0.975) * prediction_error)
   
 #----------- Heterologous fraction as a hyperbolic function ---------------------------------- 
-merR_plot <- tidy_Hg_Hlim %>% 
+  #__wrangling__
+  merR_plot <- tidy_Hg_Hlim %>% 
     filter(time > 0.5) %>% 
     left_join(blc, by="time")%>%
     mutate(phi = phi - bl) %>%
     group_by(Hg) %>% 
     summarize(phi = max(phi, na.rm = TRUE)) %>%
     ungroup()%>%
+  # __plot__  
     ggplot(aes(Hg, phi/1000))+
     theme_classic()+
     geom_point(shape = 5, size = 3)+
-    geom_line(data = tab_merR, aes(Hg, H/1000), size = unit(0.3, "mm"))+
-    xlab(expression("Hg concentration ("~n*M~")" ))+
+    geom_line(data = tab_merR, aes(Hg, fi/1000), size = unit(0.3, "mm"))+
+    xlab(expression(Hg~concentration~(nM)))+
     xlim(c(0,260))+
     ylab("")+
     ylim(c(0,2.55))+
@@ -66,7 +68,7 @@ merR_plot <- tidy_Hg_Hlim %>%
           axis.text.y = element_text(size = unit(8, "mm")),
           aspect.ratio=2/3)
 
-
+merR_plot
 #--------------------------------- CymR ---------------------------------------------------------------------
 {
   blc <- tidy_j23_Hlim %>% 
@@ -81,28 +83,32 @@ merR_plot <- tidy_Hg_Hlim %>%
     group_by(cumate) %>%
     summarize(phi = max(phi))
   
-  CymR_fit <- CymR_tab %>%
-    nls(phi~a*(cumate^m /(cumate^m + b^m)), 
-        data = .,start = list(a=1000, b=100, m=1), 
+  model <- CymR_tab %>%
+    nls(phi~a*(cumate^k /(cumate^k + b^k)), 
+        data = .,start = list(a=1000, b=100, k=1), 
         algorithm="port", 
         lower=c(0,0,1), upper=c(5000,1000,2))
   
-  nls_CymR <- CymR_fit %>% 
-    summary() %>%
-    .$parameters %>% 
-    as_tibble() %>% 
-    mutate(parameter =c("a", "b", "c"), .before = Estimate)
+  cumate <- 0:1000
+  fi_hat <- predict(model, newdata = tibble(cumate = cumate))
   
-  a <- nls_CymR%>% filter(parameter == "a") %>% pull(Estimate)
-  b <- nls_CymR%>% filter(parameter == "b") %>% pull(Estimate)
-  c <- nls_CymR%>% filter(parameter == "c") %>% pull(Estimate)
   
-  hill_pj23 <- function(x){ 
-    a*x^c / (x^c + b^c)
-    }
+  # Calculate standard errors for predictions using DELTA METHOD:
+  a <- coef(model)["a"]
+  b <- coef(model)["b"]
+  k <- coef(model)["k"]
+  parameter_standard_errors <- sqrt(diag(vcov(model)))
   
-  tab <- hill_pj23(1:1000)
-  tab_CymR <- data.frame(cumate = c(1:1000), H = tab)
+  prediction_error <- sqrt(
+    ((cumate)^k / ((cumate)^k + b^k))^2 * parameter_standard_errors["a"]^2 +
+      (a * k * b^(k-1) * (cumate)^k / ((cumate)^k + b^k)^2 )^2 * parameter_standard_errors["b"]^2 +
+      (a * b^k * log(cumate / b) * (cumate)^k / ((cumate)^k + b^k)^2 )^2 * parameter_standard_errors["k"]^2
+  )
+  
+  tab_CymR <- tibble(strain = s[i], cumate = cumate, fi = fi_hat,
+         # Calculate lower and upper bounds for the confidence intervals
+         lower = fi_hat - qnorm(0.975) * prediction_error, 
+         upper = fi_hat + qnorm(0.975) * prediction_error)
 } 
   
 #------------ Heterologous fraction as a hyperbolic function ------------------------------------------------------
@@ -115,7 +121,7 @@ CymR_plot <-  tidy_j23_Hlim %>%
     ungroup()%>%
     ggplot(aes(cumate/1000, phi/1000))+
     geom_point(shape = 1, size = 3)+
-    geom_line(data = tab_CymR, aes(cumate/1000, H/1000), size = unit(0.3, "mm"))+
+    geom_line(data = tab_CymR, aes(cumate/1000, fi/1000), size = unit(0.3, "mm"))+
     theme_classic()+
     xlab(expression("Cumate concentration ("~mu*M~")" ))+
     xlim(c(0,1.1))+

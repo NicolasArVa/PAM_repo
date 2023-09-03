@@ -12,11 +12,7 @@ bl <- tidy_DE3_Hlim %>%
 tidy_BL21 <- tidy_DE3_Hlim %>% filter(strain == "BL21 lacI")%>% 
   left_join(bl, by = c("time")) %>%
   filter(iptg %in% c(1,62,100,250,1000)) %>% 
-  
-  # 1 um had essentially zero effect,
-  # so it was treated as that.
-  
-  mutate(iptg = str_replace_all(iptg, "1$", "0"), phi = phi - bl)%>%
+  mutate(phi = phi - bl)%>%
   mutate(iptg = as.numeric(iptg))%>%
   arrange(iptg)%>%
   mutate(iptg = as.factor(iptg)) 
@@ -26,27 +22,28 @@ indexes <- tidy_BL21 %>% filter(between(time, 0, 10)) %>%
   summarize(phi_index=which.max(phi),
             gr_index=which.max(growth_rate))
 {
-a <- c(0,62,100,250,1000)
-b <- indexes$gr_index
-c <- indexes$phi_index
-  
-tab_Hwa <- sapply(2:length(a),function(i){
-  tab <- tidy_BL21 %>% filter(iptg==a[i]) %>%
-    select(production_rate, growth_rate) %>% .[b[i],]
-  tab <- bind_cols(tab, a[i])
+  # tables to circle analysis points by us and by Hwa
+  a <- c(1,62,100,250,1000)
+  b <- indexes$gr_index
+  c <- indexes$phi_index
+  # Hwa table
+  tab_Hwa <- sapply(2:length(a),function(i){
+    tab <- tidy_BL21 %>% filter(iptg==a[i]) %>%
+      select(production_rate, growth_rate) %>% .[b[i],]
+    tab <- bind_cols(tab, a[i])
   }) %>% t() %>% as_tibble %>% 
-  unnest(cols = c(`...3`, production_rate, growth_rate)) %>% 
-  rename(iptg = `...3`) %>% relocate(iptg)
+    unnest(cols = c(`...3`, production_rate, growth_rate)) %>% 
+    rename(iptg = `...3`) %>% relocate(iptg)
+  # our table
+  tab_Vacc<- sapply(2:length(a),function(i){
+    tab <- tidy_BL21 %>% filter(iptg==a[i]) %>%
+      select(production_rate, growth_rate) %>% .[c[i],]
+    tab <- bind_cols(tab, a[i])
+  }) %>% t() %>% as_tibble %>% 
+    unnest(cols = c(`...3`, production_rate, growth_rate)) %>% 
+    rename(iptg = `...3`) %>% relocate(iptg) 
 
-tab_Vacc<- sapply(2:length(a),function(i){
-  tab <- tidy_BL21 %>% filter(iptg==a[i]) %>%
-    select(production_rate, growth_rate) %>% .[c[i],]
-  tab <- bind_cols(tab, a[i])
-  }) %>% t() %>% as_tibble %>% 
-  unnest(cols = c(`...3`, production_rate, growth_rate)) %>% 
-  rename(iptg = `...3`) %>% relocate(iptg) 
-}
-{
+  # Table to mark key time points with labels 
   a <- c(0,62,100,250,1000)
   b <- c(1,4,13)
   
