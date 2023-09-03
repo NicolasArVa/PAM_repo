@@ -1,8 +1,8 @@
 library(magrittr)
+library(readxl)
 setwd(paste0(getwd(), "/data_raw/"))
+
 {
-  
-  library(readxl)
   cn <- c("time", paste0("od", 1:6), "-", "-", "-", "time2", paste0("flu", 1:6))
   con <- c(0,2,4,8,12)
   
@@ -98,7 +98,7 @@ setwd(paste0(getwd(), "/data_raw/"))
   gr_se <- tidy_base %>% select(gr1:gr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
   pr_se <- tidy_base %>% select(pr1:pr3) %>% apply(1, sd) %>% divide_by(sqrt(3))
   
-  j23_Rlim_tidy_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
+  tidy_j23_Rlim_bl <- bind_cols(time, conc, od, flu, phi, gr, pr, 
                                 od_se, flu_se, phi_se, gr_se, pr_se) %>% 
     set_names(c("time", "Chloramphenichol", "od", "fluorescence", 
                  "phi", "growth_rate", "production_rate",

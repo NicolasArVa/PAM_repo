@@ -2,7 +2,6 @@
 library(tidyverse)
 library(readxl)
 {
-  
   cn <- c("time", "od1", "od2","od3","od4", "od5", "od6","od7","od8", "od9", 
           "-", "time2", "flu1", "flu2", "flu3", "flu4", "flu5", "flu6", "flu7", "flu8", "flu9")
   
@@ -62,5 +61,4 @@ library(readxl)
                 "phi", "growth_rate", "production_rate",
                 "od_se", "fluorescence_se", 
                 "phi_se", "growth_rate_se", "production_rate_se"))
-  
 }
