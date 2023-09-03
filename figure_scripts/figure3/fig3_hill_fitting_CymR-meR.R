@@ -123,7 +123,7 @@ CymR_plot <-  tidy_j23_Hlim %>%
     geom_point(shape = 1, size = 3)+
     geom_line(data = tab_CymR, aes(cumate/1000, fi/1000), size = unit(0.3, "mm"))+
     theme_classic()+
-    xlab(expression("Cumate concentration ("~mu*M~")" ))+
+    xlab(expression(Cumate~concentration~(mu*M)))+
     xlim(c(0,1.1))+
     ylab("")+
     ylim(c(0,1.55))+
