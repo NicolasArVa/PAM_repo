@@ -1,3 +1,4 @@
+library(tidyverse)
 strs <- factor(c("MG1655", "MG1655 lacI", "BLR", "BLR lacI", "BL21 lacI"))
 c <- c(1, 62, 100, 250, 1000)
 
@@ -40,7 +41,7 @@ pr_prediction <- expand.grid(strain = strs, iptg = factor(c),
   mutate(pr = fi*gr)
 
 data %>% 
-  filter(iptg %in% c(1,62,100,250,1000), time > 2) %>% 
+  filter(iptg %in% c(1,62,100,250,1000), time > 2, time <6) %>% 
   group_by(strain, iptg) %>%
   ggplot(aes(growth_rate, production_rate/1000, color = iptg))+
   theme_classic()+

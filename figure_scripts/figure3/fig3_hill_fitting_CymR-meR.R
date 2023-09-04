@@ -34,10 +34,11 @@ library(minpack.lm)
       (a * hg / (hg + b)^2 )^2 * parameter_standard_errors["b"]^2 
   )
   
-  tab_merR <- tibble(strain = s[i], Hg = hg, fi = fi_hat,
+  tab_merR <- tibble(Hg = hg, fi = fi_hat,
          # Calculate lower and upper bounds for the confidence intervals
          lower = fi_hat - qnorm(0.975) * prediction_error, 
-         upper = fi_hat + qnorm(0.975) * prediction_error)
+         upper = fi_hat + qnorm(0.975) * prediction_error,
+         error = prediction_error)
   
 #----------- Heterologous fraction as a hyperbolic function ---------------------------------- 
   #__wrangling__
@@ -105,10 +106,11 @@ merR_plot
       (a * b^k * log(cumate / b) * (cumate)^k / ((cumate)^k + b^k)^2 )^2 * parameter_standard_errors["k"]^2
   )
   
-  tab_CymR <- tibble(strain = s[i], cumate = cumate, fi = fi_hat,
+  tab_CymR <- tibble(cumate = cumate, fi = fi_hat,
          # Calculate lower and upper bounds for the confidence intervals
          lower = fi_hat - qnorm(0.975) * prediction_error, 
-         upper = fi_hat + qnorm(0.975) * prediction_error)
+         upper = fi_hat + qnorm(0.975) * prediction_error, 
+         error = prediction_error)
 } 
   
 #------------ Heterologous fraction as a hyperbolic function ------------------------------------------------------
