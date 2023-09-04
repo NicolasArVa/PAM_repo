@@ -41,7 +41,8 @@ library(pracma)
     tibble(strain = s[i], iptg = 0:1000, fi = fi_hat,
            # Calculate lower and upper bounds for the confidence intervals
            lower = fi_hat - qnorm(0.975) * prediction_error, 
-           upper = fi_hat + qnorm(0.975) * prediction_error)
+           upper = fi_hat + qnorm(0.975) * prediction_error, 
+           error = prediction_error)
     
     
   })
