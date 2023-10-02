@@ -5,33 +5,42 @@ library(minpack.lm)
 #--------------------------------- merR ---------------------------------------------------------------------
 {
   
-  blc <- tidy_Hg_Hlim %>% 
-    filter(time > 0.5 & time <= 2.5 & Hg == min(Hg)) %>% 
-    select(time, phi)%>%
-    rename(bl = phi)
+  #blc <- tidy_Hg_Hlim %>% 
+    #filter(time > 0.5 & time <= 2.5 & Hg == min(Hg)) %>% 
+    #select(time, phi)%>%
+    #rename(bl = phi)
   
+  #merR_tab <- tidy_Hg_Hlim %>% 
+    #filter(time > 0.5 & time <= 2.5) %>% 
+    #left_join(blc, by="time") %>%
+    #mutate(phi = phi - bl) %>%
+    #group_by(Hg) %>%
+    #summarize(phi = max(phi))
+  
+  # == a Hg_slopes
   merR_tab <- tidy_Hg_Hlim %>% 
-    filter(time > 0.5 & time <= 2.5) %>% 
-    left_join(blc, by="time") %>%
-    mutate(phi = phi - bl) %>%
-    group_by(Hg) %>%
-    summarize(phi = max(phi))
+    filter(between(time, 2, 8)) %>%
+    group_by(Hg)%>%
+    summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"])
   
-  model <- nls(phi~a*(Hg /(Hg + b)), 
-                    data = merR_tab,
-                    start = list(a=2000, b=100), algorithm = 'port')
+  model <- nls(slope~a*((Hg^k) /((Hg^k) + (b^k))), 
+                    data = merR_tab%>%filter(Hg!=2000),
+                    start = list(a=2000, b=100, k =1), 
+               algorithm = 'port', lower=c(0,0,1))
   
-  hg <- 0:250
+  hg <- 0:1000
   fi_hat <- predict(model, newdata = tibble(Hg = hg))
 
   # Calculate standard errors for predictions using DELTA METHOD:
   a <- coef(model)["a"]
   b <- coef(model)["b"]
+  k <- coef(model)["k"]
   parameter_standard_errors <- sqrt(diag(vcov(model)))
   
   prediction_error <- sqrt(
-    (hg / (hg + b))^2 * parameter_standard_errors["a"]^2 +
-      (a * hg / (hg + b)^2 )^2 * parameter_standard_errors["b"]^2 
+    ((hg)^k / ((hg)^k + b^k))^2 * parameter_standard_errors["a"]^2 +
+      (a * k * b^(k-1) * (hg)^k / ((hg)^k + b^k)^2 )^2 * parameter_standard_errors["b"]^2 +
+      (a * b^k * log(hg / b) * (hg)^k / ((hg)^k + b^k)^2 )^2 * parameter_standard_errors["k"]^2
   )
   
   tab_merR <- tibble(Hg = hg, fi = fi_hat,
@@ -42,22 +51,23 @@ library(minpack.lm)
   
 #----------- Heterologous fraction as a hyperbolic function ---------------------------------- 
   #__wrangling__
-  merR_plot <- tidy_Hg_Hlim %>% 
-    filter(time > 0.5) %>% 
-    left_join(blc, by="time")%>%
-    mutate(phi = phi - bl) %>%
-    group_by(Hg) %>% 
-    summarize(phi = max(phi, na.rm = TRUE)) %>%
-    ungroup()%>%
+  #merR_plot <- tidy_Hg_Hlim %>% 
+    #filter(time > 0.5) %>% 
+    #left_join(blc, by="time")%>%
+    #mutate(phi = phi - bl) %>%
+    #group_by(Hg) %>% 
+    #summarize(phi = max(phi, na.rm = TRUE)) %>%
+    #ungroup()%>%
+  merR_plot <- merR_tab %>%
   # __plot__  
-    ggplot(aes(Hg, phi/1000))+
+    ggplot(aes(Hg, slope/1000))+
     theme_classic()+
     geom_point(shape = 5, size = 3)+
     geom_line(data = tab_merR, aes(Hg, fi/1000), size = unit(0.3, "mm"))+
     xlab(expression(Hg~concentration~(nM)))+
-    xlim(c(0,260))+
+    xlim(c(0,1000))+
     ylab("")+
-    ylim(c(0,2.55))+
+    ylim(c(0,10))+
     theme(plot.margin = margin(0,0,0,0, "mm"),
           legend.title = element_text(size = unit(6, "mm"), face = "bold"),
           legend.text = element_text(size = unit(6, "mm")),

@@ -1,17 +1,19 @@
 #---------------------------- merR ---------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(readxl)
+library(magrittr)
+setwd(paste0(getwd(),"/data_raw"))
 {
   cn <- c("time", "od1", "od2","od3","od4", "od5", "od6","od7","od8", "od9", 
-          "-", "time2", "flu1", "flu2", "flu3", "flu4", "flu5", "flu6", "flu7", "flu8", "flu9")
+          "-", "flu1", "flu2", "flu3", "flu4", "flu5", "flu6", "flu7", "flu8", "flu9")
   
   
-  con <- c(0,1,2,5,10,25,50,125,250) # merR concentrations 
+  con <- c(0,1,2,5,10,25,50,125,250,500,1000,2000) # merR concentrations 
   
   
   # Assuming the file is in current working directory
   for (i in 1:length(con)){
-    tab <- read_excel("nebpHg_Hlim.xlsx", sheet = i) %>% 
+    tab <- read_excel("merR_rawData_0-2000nM.xlsx", sheet = i) %>%
       set_names(cn)  
     tab <- tab %>%  set_names(cn)
     t <- tab %>% select(time)

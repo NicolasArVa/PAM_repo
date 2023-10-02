@@ -30,9 +30,10 @@ ggplot()+
   xlab(expression(Growth~rate~(h^-1)))+
   ylab(expression(Production~rate~(10^3*FU~OD[600]^-1*h^-1)))
 
-#####################################################################################
+################################# merR ########################################################
 
-predicted_fi <- tab_merR %>% filter(Hg %in% c(0, 10, 25, 50, 125, 250)) %>% 
+predicted_fi <- tab_merR %>% 
+  filter(Hg %in% c(0, 10, 25, 50, 125, 250, 500, 1000, 2000)) %>% 
   select(Hg, fi, error)
 GP <- expand.grid(fi = predicted_fi$fi, gr = seq(0,3, 0.1)) %>%
   mutate(pr = fi*gr)
@@ -65,6 +66,6 @@ Hg_slopes
 
 Hg_slopes %>%
   ggplot()+
-  theme_classic()+
-  geom_point(aes(Hg,slope/1000))
+  geom_point(aes(Hg,slope/1000))+
+  geom_smooth(aes(Hg,slope/1000))
 
