@@ -45,3 +45,4 @@ ggplot(aes(growth_rate, production_rate/1000, size = iptg, color = iptg))+
         strip.text = element_text(size = unit(8, "mm")),
         strip.background = element_rect(color = 'white'),
         aspect.ratio=1/1)
+

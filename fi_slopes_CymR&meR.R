@@ -59,12 +59,12 @@ tidy_Hg_Hlim %>%
 
 Hg_slopes <- tidy_Hg_Hlim %>% 
   filter(between(time, 2, 8)) %>%
-  mutate(Hg = factor(Hg)) %>%
   group_by(Hg)%>%
   summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"])
 Hg_slopes
 
 Hg_slopes %>%
   ggplot()+
+  theme_classic()+
   geom_point(aes(Hg,slope/1000))
 

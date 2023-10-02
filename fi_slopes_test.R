@@ -18,7 +18,7 @@ predicted_fi <- DE3predictions_table %>%
 
 # Calculation of fi from slopes of the hook graphs:
 calculated_fi <- data %>% 
-  filter(iptg %in% c(1,62,100,250,1000), time > 2) %>% 
+  filter(iptg %in% c(1,62,100,250,1000), time > 2, time <6) %>% 
   group_by(strain, iptg) %>%
   summarize(m = coef(lm(production_rate~growth_rate))["growth_rate"],
             m_lower = confint(lm(production_rate~growth_rate))[2,1],
@@ -40,18 +40,25 @@ pr_prediction <- expand.grid(strain = strs, iptg = factor(c),
   select(strain, iptg, gr, fi) %>% arrange(strain, iptg) %>%
   mutate(pr = fi*gr)
 
-data %>% 
+###PLOT CON TODAS LAS RECTAS
+data 
   filter(iptg %in% c(1,62,100,250,1000), time > 2, time <6) %>% 
-  group_by(strain, iptg) %>%
   ggplot(aes(growth_rate, production_rate/1000, color = iptg))+
   theme_classic()+
-  geom_smooth(method = "lm", linetype = 2)+
+  geom_smooth(method = "lm")+
+  geom_point()+
   geom_line(data = pr_prediction, aes(gr, pr))+
-  xlim(c(0, NA))+
-  ylim(c(0, NA))+
-  facet_wrap(~strain, scales = "free")
+  ##xlim(c(0, NA))+
+  #ylim(c(0, NA))+
+  facet_grid(strain~iptg, scales = "free")
 
+calculated_fi%>%
+  ggplot(aes(as.numeric(as.character(iptg)),m/1000, group = strain, color = strain))+
+  theme_classic()+
+  geom_line()+
+  geom_point()
 
+  
 fi_comparison_table %>% ggplot(aes(shape = strain))+
   theme_classic()+
   geom_point(aes(iptg, m), color = "red")+

@@ -13,3 +13,4 @@ ggplot(data = data, aes(growth_rate, production_rate/1000, color = iptg))+
   xlim(c(0, NA))+
   ylim(c(0, NA))+
   facet_wrap(~strain, scales = "free_y")
+

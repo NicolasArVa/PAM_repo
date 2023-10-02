@@ -85,10 +85,10 @@ merR_plot
     summarize(phi = max(phi))
   
   model <- CymR_tab %>%
-    nls(phi~a*(cumate^k /(cumate^k + b^k)), 
-        data = .,start = list(a=1000, b=100, k=1), 
+    nls(phi~(a*cumate^k /((a+c)*cumate^k + c*b^k)), 
+        data = .,start = list(a=5000, b=100,c=1000, k=1), 
         algorithm="port", 
-        lower=c(0,0,1), upper=c(5000,1000,2))
+        lower=c(0,0,0,1), upper=c(5000,1000,1e6,2))
   
   cumate <- 0:1000
   fi_hat <- predict(model, newdata = tibble(cumate = cumate))
@@ -140,6 +140,7 @@ CymR_plot <-  tidy_j23_Hlim %>%
           axis.text.y = element_text(size = unit(8, "mm")),
           aspect.ratio=2/3)
 }
+
 
 CymR_plot
 merR_plot
