@@ -7,9 +7,8 @@ setwd(paste0(getwd(), "/data_raw"))
   k1 <- c("MG1655", "BLR", "MG1655 lacI", "BLR lacI") 
   k2 <- c("MG1655", "BLR", "MG1655-lacI", "BLR-lacI")
   
-  
-  for(j in 1:4){
-    s <- c("MG1655pT7_Hlim_all", "BLRpT7_Hlim_all", "MG1655lacIpT7_Hlim_all", "BLRlacIpT7_Hlim_all")
+  s <- c("MG1655pT7_Hlim_all", "BLRpT7_Hlim_all", "MG1655lacIpT7_Hlim_all", "BLRlacIpT7_Hlim_all")
+  for(j in seq_along(s)){
     
     # Assuming the file is in current working directory
     for(i in 1:length(con)){
