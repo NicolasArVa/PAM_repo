@@ -1,6 +1,7 @@
 #---------------------------- CymR ---------------------------------------------------------------------------------------------------
 library(tidyverse)
 library(readxl)
+library(magrittr)
 {
   cn <- c("time", "od1", "od2","od3","od4", "od5", "od6","od7","od8", "od9", 
           "-", "time2", "flu1", "flu2", "flu3", "flu4", "flu5", "flu6", "flu7", "flu8", "flu9")
@@ -9,7 +10,7 @@ library(readxl)
   
   # Assuming the file is in current working directory
   for (i in 1:length(con)){
-    tab <- read_excel("MG1655pj23_Hlim.xlsx", sheet = i) %>% 
+    tab <- read_excel("data_raw/MG1655pj23_Hlim.xlsx", sheet = i) %>% 
       set_names(cn)  
     tab <- tab %>%  set_names(cn)
     t <- tab %>% select(time)
@@ -61,3 +62,19 @@ library(readxl)
                 "phi_se", "growth_rate_se", "production_rate_se"))
   
 }
+tidy_j23_Hlim%>%
+  ggplot(aes(time,od,group=cumate, color=cumate))+
+  geom_line()+
+  geom_point()
+tidy_j23_Hlim%>%
+  ggplot(aes(time,fluorescence,group=cumate, color=cumate))+
+  geom_line()+
+  geom_point()
+tidy_j23_Hlim%>%
+  ggplot(aes(time,phi,group=cumate, color=cumate))+
+  geom_line()+
+  geom_point()
+tidy_j23_Hlim%>%
+  ggplot(aes(time,production_rate,group=cumate, color=cumate))+
+  geom_line()+
+  geom_point()

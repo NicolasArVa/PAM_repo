@@ -19,7 +19,7 @@ plot1 <- tidy_j23_Hlim %>% filter(time<4)%>%
   xlab(expression(Growth~rate~(h^-1)))+
   ylab(expression(Production~rate~(10^3*FU~OD[600]^-1 * h^-1)))+
   theme(aspect.ratio = 1/1)
-
+plot1
 ggsave("production_v_growth_CymR.tiff", plot1, width = 84, height = 80, units = "mm", dpi = 600)
 
 plot2 <- tidy_Hg_Hlim %>% filter(between(time, 0.75,8), Hg>=5)%>%

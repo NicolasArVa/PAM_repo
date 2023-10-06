@@ -69,11 +69,11 @@ library(pracma)
     theme_classic()+
     geom_line(data = DE3predictions_table, aes(iptg/1000, fi/1000, linetype = strain), 
               size = unit(0.3, "mm"), show.legend = F)+
-    geom_point(aes(shape = strain), size = 3, show.legend = F)+
+    geom_point(aes(shape = strain), size = 3)+
     #geom_point(data = data.frame(iptg) , aes(iptg/1000, H/1000, shape="NEB Stable"), size = 3)+
     xlab("IPTG concentration (mM)")+
-    ylab(expression(10^3~FU~OD^-1))+
-    scale_y_continuous(limit = c(0,14), breaks = seq(0, 14, by = 4))+
+    ylab(expression(phi[H]~(10^3~FU~OD^-1)))+
+    scale_y_continuous(limit = c(0,13), breaks = seq(0, 14, by = 4))+
     scale_shape_manual(values = c("MG1655" = 1, "BLR" = 0, 
                                   "MG1655 lacI" = 13, "BLR lacI" = 7, 
                                   "BL21 lacI" = 2), 
@@ -82,7 +82,7 @@ library(pracma)
                                      "MG1655 lacI" = 3, "BLR lacI" = 2, 
                                      "BL21 lacI" = 1), 
                           name = "Strain")+
-    theme(plot.margin = margin(0,0,0,0, "mm"),
+    theme(plot.margin = margin(2,2,2,2, "mm"),
           legend.title = element_text(size = unit(6, "mm"), face = "bold"),
           legend.text = element_text(size = unit(6, "mm")),
           legend.box.margin = margin(0, 0, 0, 0),
@@ -91,7 +91,7 @@ library(pracma)
           axis.title.y = element_text(size = unit(9, "mm"), vjust = 2),
           axis.text.x = element_text(size = unit(8, "mm")),
           axis.text.y = element_text(size = unit(8, "mm")))+
-    theme(aspect.ratio=4/6)
+    theme(aspect.ratio=1/1)
   
   DE3_plot
 }
