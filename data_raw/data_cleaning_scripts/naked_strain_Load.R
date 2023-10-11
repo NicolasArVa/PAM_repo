@@ -1,4 +1,5 @@
 # Load tidy data frame
+library(readxl)
 
 xlsx_names <- c("MG1655data_naked", "MG1655data_lacI", "BLRdata_naked", 
                 "BLRdata_lacI", "BL21data_naked", "BL21data_lacI")
@@ -6,7 +7,7 @@ strains <- c("MG1655", "MG1655 lacI", "BLR", "BLR lacI",
              "BL21", "BL21 lacI")
 
 for(j in 1:length(strains)){
-  file <- paste0(xlsx_names[j], ".xlsx")
+  file <- paste0("data_raw/strains_without_reporter/",xlsx_names[j], ".xlsx")
   strain <- strains[j]
   strain2 <- str_replace(strain, " ", "_")
   
@@ -46,7 +47,7 @@ for(j in 1:length(strains)){
     
     z <- sapply(1:length(y), function(i){
       avg <- get(x[i]) %>% apply(1, mean)
-      se <- get(x[i]) %>% apply(1, se)
+      se <- get(x[i]) %>% apply(1, sd)
       tibble(avg,se)
     }) %>% as_tibble()
     w <- bind_cols(z[1,1], z[2,1], z[1,2], z[2,2])%>% 

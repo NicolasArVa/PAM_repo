@@ -82,23 +82,28 @@ library(minpack.lm)
 merR_plot
 #--------------------------------- CymR ---------------------------------------------------------------------
 {
-  blc <- tidy_j23_Hlim %>% 
-    filter(time > 0.5, cumate == min(cumate)) %>% 
-    select(time, phi)%>%
-    rename(bl = phi)
+  #blc <- tidy_j23_Hlim %>% 
+    #filter(time > 0.5, cumate == min(cumate)) %>% 
+    #select(time, phi)%>%
+    #rename(bl = phi)
   
-  CymR_tab <- tidy_j23_Hlim%>% 
-    filter(time > 0.5) %>% 
-    left_join(blc, by="time")%>%
-    mutate(phi = phi - bl) %>%
-    group_by(cumate) %>%
-    summarize(phi = max(phi))
+  #CymR_tab <- tidy_j23_Hlim%>% 
+    #filter(time > 0.5) %>% 
+    #left_join(blc, by="time")%>%
+    #mutate(phi = phi - bl) %>%
+    #group_by(cumate) %>%
+    #summarize(phi = max(phi))
   
-  model <- CymR_tab %>%
-    nls(phi~(a*cumate^k /((a+c)*cumate^k + c*b^k)), 
-        data = .,start = list(a=5000, b=100,c=1000, k=1), 
-        algorithm="port", 
-        lower=c(0,0,0,1), upper=c(5000,1000,1e6,2))
+  CymR_tab <- tidy_j23_Hlim %>% 
+    filter(time < 3) %>%
+    group_by(cumate)%>%
+    summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"],
+              b=lm(production_rate~growth_rate)$coefficients["(Intercept)"])
+  
+  model <- nls(slope~a*((cumate^k) /((cumate^k) + (b^k))), 
+               data = CymR_tab,
+               start = list(a=2000, b=100, k =1), 
+               algorithm = 'port', lower=c(0,0,1))
   
   cumate <- 0:1000
   fi_hat <- predict(model, newdata = tibble(cumate = cumate))
@@ -124,21 +129,21 @@ merR_plot
 } 
   
 #------------ Heterologous fraction as a hyperbolic function ------------------------------------------------------
-CymR_plot <-  tidy_j23_Hlim %>% 
-    filter(time > 0.5) %>% 
-    left_join(blc, by="time")%>%
-    mutate(phi = phi - bl) %>%
-    group_by(cumate) %>% 
-    summarize(phi = max(phi, na.rm = TRUE)) %>%
-    ungroup()%>%
-    ggplot(aes(cumate/1000, phi/1000))+
+CymR_plot <- CymR_tab%>% #tidy_j23_Hlim %>% 
+    #filter(time > 0.5) %>% 
+    #left_join(blc, by="time")%>%
+    #mutate(phi = phi - bl) %>%
+    #group_by(cumate) %>% 
+    #summarize(phi = max(phi, na.rm = TRUE)) %>%
+    #ungroup()%>%
+    ggplot(aes(cumate/1000, slope/1000))+
     geom_point(shape = 1, size = 3)+
     geom_line(data = tab_CymR, aes(cumate/1000, fi/1000), size = unit(0.3, "mm"))+
     theme_classic()+
     xlab(expression(Cumate~concentration~(mu*M)))+
     xlim(c(0,1.1))+
     ylab("")+
-    ylim(c(0,1.55))+
+    #ylim(c(0,1.55))+
     theme(plot.margin = margin(0,0,0,0, "mm"),
           legend.title = element_text(size = unit(6, "mm"), face = "bold"),
           legend.text = element_text(size = unit(6, "mm")),

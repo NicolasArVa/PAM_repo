@@ -72,7 +72,7 @@ library(pracma)
     geom_point(aes(shape = strain), size = 3)+
     #geom_point(data = data.frame(iptg) , aes(iptg/1000, H/1000, shape="NEB Stable"), size = 3)+
     xlab("IPTG concentration (mM)")+
-    ylab(expression(phi[H]~(10^3~FU~OD^-1)))+
+    ylab(expression(phi[H]~(10^3~FU~OD[600]^-1)))+
     scale_y_continuous(limit = c(0,13), breaks = seq(0, 14, by = 4))+
     scale_shape_manual(values = c("MG1655" = 1, "BLR" = 0, 
                                   "MG1655 lacI" = 13, "BLR lacI" = 7, 

@@ -61,9 +61,7 @@ PvG_BL21 <- tidy_BL21 %>% filter(time < 11)%>%
   ggplot(aes(growth_rate, production_rate/1000, size = iptg, color = iptg))+
   theme_classic()+
   geom_path(show.legend = F)+
-  geom_text(aes(x=0, y=8, label = 'A'), size = unit(3, 'mm'),
-            color ='black')+
-  geom_label(data = tab_times, aes(growth_rate, production_rate/1000, 
+  geom_label_repel(data = tab_times, aes(growth_rate, production_rate/1000, 
                                    label = time, color = as.factor(iptg)), 
              size = 2, show.legend = F)+
   geom_point(data = tab_Vacc, aes(growth_rate, production_rate/1000), 
@@ -87,7 +85,7 @@ PvG_BL21 <- tidy_BL21 %>% filter(time < 11)%>%
                            type="closed"))+
   geom_text(aes(x = c(0.8, 0.7), y = c(0.7, 4), label = c("-", "+")), 
             data = tibble(), size = 3,
-            nudge_x = c(0.04, 0.07), nudge_y = c(0.1, -0.1), 
+            nudge_x = c(-0.04, -0.04), nudge_y = c(0, -0.1), 
             color = "black")+
   theme(plot.margin = margin(1,0,0,1, "mm"),
         plot.title = element_text(size = unit(8, 'mm'), hjust = 0.5),
@@ -95,7 +93,6 @@ PvG_BL21 <- tidy_BL21 %>% filter(time < 11)%>%
         axis.text.x = element_text(size = unit(8, "mm")),
         axis.text.y = element_text(size = unit(8, "mm")),
         aspect.ratio=3/3)+
-  ggtitle('BL21 lacI')+
   xlab('')+
   ylab(expression(Production~rate~(10^3~FU~OD[600]^-1~h^-1)))+
   xlim(c(0,1.25))+
