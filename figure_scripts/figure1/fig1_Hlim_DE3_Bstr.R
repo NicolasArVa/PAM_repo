@@ -16,13 +16,14 @@ Hline_B <- ggplot()+
   scale_shape_manual(values = c("BLR" = 0, 
                                 "BLR lacI" = 7, 
                                 "BL21 lacI" = 2), 
-                     name = "Strain")+
+                     name = "Strain", 
+                     labels=eval(parse_exprs(c("BL21+lacI^OV", "BLR", "BLR+lacI^OV"))))+
   ylim(c(0,2.8))+
   xlim(c(0.5,1.25))+
   xlab("")+
   ylab(expression(10^3~FU~OD^-1))+
   theme_classic()+
-  theme(plot.margin = margin(0,0,0,0, "mm"),
+  theme(plot.margin = margin(1,1,1,1, "mm"),
         legend.title = element_text(size = unit(8, "mm"), face = "bold"),
         legend.text = element_text(size = unit(8, "mm")),
         legend.box.margin = margin(0,0,0,0),

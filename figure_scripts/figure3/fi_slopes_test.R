@@ -55,7 +55,7 @@ slope_grid <- tidy_DE3_Hlim %>%
      #                           "MG1655 lacI" = 13, "BLR lacI" = 7, 
     #                            "BL21 lacI" = 2), 
        #              name = "Strain")+
-  facet_grid(iptg~strain)+
+  facet_grid(iptg~strain, labeller = eval(parse_exprs(c("BL21+lacI^OV", "BLR", "BLR+lacI^OV", "MG1655", "MG1655+lacI^OV"))))+
   theme(plot.margin = margin(2,2,2,2, "mm"),
         legend.title = element_text(size = unit(6, "mm"), face = "bold"),
         legend.text = element_text(size = unit(6, "mm")),
@@ -67,7 +67,7 @@ slope_grid <- tidy_DE3_Hlim %>%
         axis.text.x = element_blank(),
         axis.text.y = element_blank())+
   theme(aspect.ratio=1/1)
-slope_grid   
+slope_grid 
 
 calculated_fi%>%
   ggplot(aes(as.numeric(as.character(iptg)),m/1000, group = strain, color = strain))+

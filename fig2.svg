@@ -27,9 +27,9 @@
      showguides="true"
      inkscape:lockguides="true"
      showgrid="true"
-     inkscape:zoom="1.9578167"
-     inkscape:cx="636.16781"
-     inkscape:cy="182.60136"
+     inkscape:zoom="3.9156334"
+     inkscape:cx="596.71061"
+     inkscape:cy="153.87038"
      inkscape:window-width="1920"
      inkscape:window-height="991"
      inkscape:window-x="-9"
@@ -862,12 +862,12 @@
        transform="matrix(0.92916588,0.00101857,-0.00117979,1.0762328,1.6245174,0.09555984)"><tspan
          x="138.49635"
          y="126.40377"
-         id="tspan2">&#10;</tspan><tspan
+         id="tspan1">&#10;</tspan><tspan
          x="138.49635"
          y="126.40377"
-         id="tspan4">ϕ<tspan
+         id="tspan46">ϕ<tspan
    style="font-size:65%;baseline-shift:sub"
-   id="tspan3">R</tspan></tspan></text>
+   id="tspan45">R</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.84836px;line-height:0;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;baseline-shift:baseline;white-space:pre;inline-size:20.0091;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.223268;stroke-dasharray:none;stroke-opacity:1"
@@ -877,12 +877,12 @@
        transform="matrix(0.92916588,0.00101857,-0.00117979,1.0762328,5.8467574,35.424079)"><tspan
          x="138.49635"
          y="126.40377"
-         id="tspan5">&#10;</tspan><tspan
+         id="tspan47">&#10;</tspan><tspan
          x="138.49635"
          y="126.40377"
-         id="tspan10">ϕ<tspan
+         id="tspan49">ϕ<tspan
    style="font-size:65%;baseline-shift:sub"
-   id="tspan7">R</tspan></tspan></text>
+   id="tspan48">R</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.84836px;line-height:0;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;letter-spacing:0px;baseline-shift:baseline;white-space:pre;inline-size:20.0091;display:inline;fill:#000000;fill-opacity:1;stroke:#000000;stroke-width:0.223268;stroke-dasharray:none;stroke-opacity:1"
@@ -892,12 +892,12 @@
        transform="matrix(0.92916588,0.00101857,-0.00117979,1.0762328,4.25926,36.482412)"><tspan
          x="138.49635"
          y="126.40377"
-         id="tspan13">&#10;</tspan><tspan
+         id="tspan50">&#10;</tspan><tspan
          x="138.49635"
          y="126.40377"
-         id="tspan15">ϕ<tspan
+         id="tspan53">ϕ<tspan
    style="font-size:65%;baseline-shift:sub"
-   id="tspan14">R</tspan></tspan></text>
+   id="tspan52">R</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:8.84835px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';fill:#000000;stroke:#000000;stroke-width:0.1"
@@ -1611,31 +1611,31 @@
        transform="matrix(0.91868211,0,0,0.91868211,-26.727713,-157.47334)"><tspan
          x="198.19112"
          y="135.02606"
-         id="tspan17"><tspan
+         id="tspan55"><tspan
            style="font-family:Arial;-inkscape-font-specification:'Arial, Normal'"
-           id="tspan16">Anabolic precursors (x)&#10;</tspan></tspan><tspan
+           id="tspan54">Anabolic precursors (x)&#10;</tspan></tspan><tspan
          x="198.19112"
          y="141.80837"
-         id="tspan20"><tspan
+         id="tspan57"><tspan
            style="font-family:Arial;-inkscape-font-specification:'Arial, Normal'"
-           id="tspan19">&#10;</tspan></tspan><tspan
+           id="tspan56">&#10;</tspan></tspan><tspan
          x="198.19112"
          y="148.59067"
-         id="tspan23"><tspan
+         id="tspan64"><tspan
            style="font-family:Arial;-inkscape-font-specification:'Arial, Normal'"
-           id="tspan21">Nutrients</tspan><tspan
+           id="tspan58">Nutrients</tspan><tspan
            style="font-family:Arial;-inkscape-font-specification:'Arial, Normal'"
-           id="tspan22"> (S)&#10;</tspan></tspan><tspan
+           id="tspan63"> (S)&#10;</tspan></tspan><tspan
          x="198.19112"
          y="155.37297"
-         id="tspan25"><tspan
+         id="tspan66"><tspan
            style="font-family:Arial;-inkscape-font-specification:'Arial, Normal'"
-           id="tspan24">&#10;</tspan></tspan><tspan
+           id="tspan65">&#10;</tspan></tspan><tspan
          x="198.19112"
          y="162.15528"
-         id="tspan27"><tspan
+         id="tspan68"><tspan
            style="font-family:Arial;-inkscape-font-specification:'Arial, Normal'"
-           id="tspan26">Inductor (I)</tspan></tspan></text>
+           id="tspan67">Inducer (I)</tspan></tspan></text>
     <text
        xml:space="preserve"
        style="font-size:4.93889px;fill:#000000;stroke:#000000;stroke-width:0.0918682;stroke-dasharray:none;stroke-dashoffset:0"
@@ -1692,7 +1692,7 @@
        transform="translate(-6.2821152,-32.023318)"><tspan
          x="26.183397"
          y="19.494209"
-         id="tspan28">D.</tspan></text>
+         id="tspan69">D.</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:11.2889px;fill:#000000;stroke:#000000;stroke-width:0.1;stroke-dasharray:none;stroke-dashoffset:0"
@@ -1719,7 +1719,7 @@
        transform="translate(-24.903086,146.34658)"><tspan
          x="26.183397"
          y="19.494209"
-         id="tspan29">E.</tspan></text>
+         id="tspan70">E.</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.84836px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;inline-size:18.7517;display:inline;fill:#000000;stroke:#000000;stroke-width:0.1;stroke-dasharray:none;stroke-dashoffset:0"
@@ -1729,7 +1729,7 @@
        transform="translate(122.26017,136.07679)"><tspan
          x="26.183397"
          y="19.494209"
-         id="tspan43">F.</tspan></text>
+         id="tspan71">F.</tspan></text>
     <text
        xml:space="preserve"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:8.84836px;font-family:Arial;-inkscape-font-specification:'Arial, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;white-space:pre;inline-size:18.7517;display:inline;fill:#000000;stroke:#000000;stroke-width:0.1;stroke-dasharray:none;stroke-dashoffset:0"
@@ -1739,7 +1739,7 @@
        transform="translate(120.31543,162.70191)"><tspan
          x="26.183397"
          y="19.494209"
-         id="tspan44">G.</tspan></text>
+         id="tspan72">G.</tspan></text>
     <g
        transform="matrix(1.1479614,0,0,1.1479614,13.404348,156.31319)"
        ns12:version="1.9.0"

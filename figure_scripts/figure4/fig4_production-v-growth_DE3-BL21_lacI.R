@@ -1,6 +1,6 @@
 library(tidyverse)
 library(ggpubr)
-library(ggreppel)
+library(ggrepel)
 library(expandFunctions)
 
 bl <- tidy_DE3_Hlim %>%
@@ -87,13 +87,14 @@ PvG_BL21 <- tidy_BL21 %>% filter(time < 11)%>%
             data = tibble(), size = 3,
             nudge_x = c(-0.04, -0.04), nudge_y = c(0, -0.1), 
             color = "black")+
-  theme(plot.margin = margin(1,0,0,1, "mm"),
+  theme(plot.margin = margin(1,1,1,1, "mm"),
         plot.title = element_text(size = unit(8, 'mm'), hjust = 0.5),
+        axis.title.x = element_text(size = unit(8, "mm")),
         axis.title.y = element_text(size = unit(8, "mm"), vjust = 2),
         axis.text.x = element_text(size = unit(8, "mm")),
         axis.text.y = element_text(size = unit(8, "mm")),
         aspect.ratio=3/3)+
-  xlab('')+
+  xlab(expression(Growth~rate~(h^-1)))+
   ylab(expression(Production~rate~(10^3~FU~OD[600]^-1~h^-1)))+
   xlim(c(0,1.25))+
   ylim(c(0,8))

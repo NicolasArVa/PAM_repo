@@ -77,11 +77,13 @@ library(pracma)
     scale_shape_manual(values = c("MG1655" = 1, "BLR" = 0, 
                                   "MG1655 lacI" = 13, "BLR lacI" = 7, 
                                   "BL21 lacI" = 2), 
-                       name = "Strain")+
+                       name = "Strain",
+                       labels= eval(parse_exprs(c("BL21+lacI^OV", "BLR", "BLR+lacI^OV", "MG1655", "MG1655+lacI^OV"))))+
     scale_linetype_manual(values = c("MG1655" = 3, "BLR" = 2, 
                                      "MG1655 lacI" = 3, "BLR lacI" = 2, 
                                      "BL21 lacI" = 1), 
-                          name = "Strain")+
+                          name = "Strain",
+                          labels= eval(parse_exprs(c("BL21+lacI^OV", "BLR", "BLR+lacI^OV", "MG1655", "MG1655+lacI^OV"))))+
     theme(plot.margin = margin(2,2,2,2, "mm"),
           legend.title = element_text(size = unit(6, "mm"), face = "bold"),
           legend.text = element_text(size = unit(6, "mm")),
