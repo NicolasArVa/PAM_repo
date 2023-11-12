@@ -23,17 +23,6 @@ library(gridExtra)
   
   ggsave("Figure3.tiff", p1, width = 174, height = 61.05, units = "mm", dpi = 600)
 }
-test <- ggarrange(DE3_plot,slope_grid, labels = c("A","B"),nrow=2,
-                  heights = c(1,10))
-ggsave("Figure3_test.tiff", test, width = 174, height = 174, units = "mm", dpi = 600)
-
-p1
-p2 <- annotate_figure(p1,
-                      #left = text_grob(expression(10^3~FU~OD^-1),
-                      face = "bold",
-                      rot = 90,
-                      size = 12,
-                      vjust = 1) 
   
   
   
