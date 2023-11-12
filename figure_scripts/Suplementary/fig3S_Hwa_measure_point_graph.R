@@ -35,6 +35,18 @@ part2 <- tidy_DE3_Hlim %>% filter(iptg == 250, time <= 3) %>%
   geom_line()+
   geom_point(data = GR_max_table, 
              aes(t, phi/1000, color = strain), shape = 21, size = 5)+
+  scale_shape_manual(
+    values = c("BL21 lacI"=16, "BLR"=17, "BLR lacI"=15,"MG1655"=3, "MG1655 lacI"=7),
+    labels = 
+      eval(
+        parse_exprs(
+          c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+    scale_color_manual(
+      values = c("BL21 lacI"="#F8766D", "BLR"="#BB9D00", "BLR lacI"="#00B81F","MG1655"="#00C0B8", "MG1655 lacI"="#E76BF3"),
+      labels = 
+        eval(
+          parse_exprs(
+            c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
   ylab(expression(Specific~fluorescence~(10^3~Flu~OD[600]^-1)))+
   xlab('Time (h)')+
   theme(plot.margin = margin(1,1,1,1, "mm"),
@@ -53,4 +65,4 @@ legend <- get_legend(part2)
 max_gr_phi <- ggarrange(part1, part2 + theme(legend.position = 'none'), legend,
           ncol = 3, widths = c(3,3,1),
           labels = LETTERS[c(1,2)])
-ggsave("Figure2S.tiff", max_gr_phi, width = 174, height = 90, units = c('mm'), dpi = 600)
+ggsave("Figure3S.tiff", max_gr_phi, width = 174, height = 90, units = c('mm'), dpi = 600)
