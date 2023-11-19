@@ -9,7 +9,8 @@ bl <- tidy_DE3_Hlim %>%
   rename(bl = phi) %>% 
   ungroup()
 
-tidy_BL21 <- tidy_DE3_Hlim %>% filter(strain == "BL21 lacI")%>% 
+tidy_BL21 <- tidy_DE3_Hlim %>% 
+  filter(strain == "BL21 lacI")%>% 
   left_join(bl, by = c("time")) %>%
   filter(iptg %in% c(1,62,100,250,1000)) %>% 
   mutate(phi = phi - bl)%>%
@@ -60,7 +61,7 @@ indexes <- tidy_BL21 %>% filter(between(time, 0, 10)) %>%
 PvG_BL21 <- tidy_BL21 %>% filter(time < 11)%>%
   ggplot(aes(growth_rate, production_rate/1000, size = iptg, color = iptg))+
   theme_classic()+
-  geom_path(show.legend = F)+
+  geom_path()+
   geom_label_repel(data = tab_times, aes(growth_rate, production_rate/1000, 
                                    label = time, color = as.factor(iptg)), 
              size = 2, show.legend = F)+
@@ -70,36 +71,35 @@ PvG_BL21 <- tidy_BL21 %>% filter(time < 11)%>%
                color = 'red3', size = 5, shape = 21)+
   scale_color_manual(values = c("1000" = "black", "250"="grey30",
                                 "100"="grey50","62"= "grey70", 
-                                "0"= "grey80"
-                                )
-                     )+
+                                "0"= "grey80"), name = expression(IPTG~(mu*M)))+
   scale_size_manual(values = c("1000" = unit(1.3, "mm"), "250"=unit(1, "mm"),
                                "100"=unit(0.7, "mm"),"62"= unit(0.4, "mm"), 
-                               "0"= unit(0.1, "mm")
-                               )
-                    )+
-  geom_curve(x = 0.8, y = 0.5, xend = 0.7, yend = 4,
-             linetype = 1, curvature = 0.1, color = "red", 
-             size = unit(0.3, "mm"),
-             arrow = arrow(length = unit(0.03, "npc"),
-                           type="closed"))+
-  geom_text(aes(x = c(0.8, 0.7), y = c(0.7, 4), label = c("-", "+")), 
-            data = tibble(), size = 3,
-            nudge_x = c(-0.04, -0.04), nudge_y = c(0, -0.1), 
-            color = "black")+
+                               "0"= unit(0.1, "mm")), name = expression(IPTG~(mu*M)))+
   theme(plot.margin = margin(1,1,1,1, "mm"),
         plot.title = element_text(size = unit(8, 'mm'), hjust = 0.5),
-        axis.title.x = element_text(size = unit(8, "mm")),
-        axis.title.y = element_text(size = unit(8, "mm"), vjust = 2),
+        legend.title = element_text(size = unit(6, "mm"), face = "bold"),
+        legend.text = element_text(size = unit(6, "mm")),
+        legend.box.margin = margin(0, 0, 0, 0),
+        legend.key.size = unit(5, "mm"),
+        axis.title.x = element_text(size = unit(9, "mm")),
+        axis.title.y = element_text(size = unit(9, "mm"), vjust = 2),
         axis.text.x = element_text(size = unit(8, "mm")),
         axis.text.y = element_text(size = unit(8, "mm")),
-        aspect.ratio=3/3)+
+        aspect.ratio=1/1)+
   xlab(expression(Growth~rate~(h^-1)))+
   ylab(expression(Production~rate~(10^3~FU~OD[600]^-1~h^-1)))+
-  xlim(c(0,1.25))+
-  ylim(c(0,8))
+  xlim(c(0,1))+
+  ylim(c(0,6))
 
 PvG_BL21
 
 
-
+#geom_curve(x = 0.8, y = 0.5, xend = 0.7, yend = 4,
+#           linetype = 1, curvature = 0.1, color = "red", 
+#           size = unit(0.3, "mm"),
+#           arrow = arrow(length = unit(0.03, "npc"),
+#                         type="closed"))+
+#  geom_text(aes(x = c(0.8, 0.7), y = c(0.7, 4), label = c("-", "+")), 
+#            data = tibble(), size = 3,
+#            nudge_x = c(-0.04, -0.04), nudge_y = c(0, -0.1), 
+#            color = "black")+

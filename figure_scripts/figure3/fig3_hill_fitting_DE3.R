@@ -84,7 +84,7 @@ library(pracma)
                                      "BL21 lacI" = 1), 
                           name = "Strain",
                           labels= eval(parse_exprs(c("BL21+lacI^OV", "BLR", "BLR+lacI^OV", "MG1655", "MG1655+lacI^OV"))))+
-    theme(plot.margin = margin(2,2,2,2, "mm"),
+    theme(plot.margin = margin(1,1,1,1, "mm"),
           legend.title = element_text(size = unit(6, "mm"), face = "bold"),
           legend.text = element_text(size = unit(6, "mm")),
           legend.box.margin = margin(0, 0, 0, 0),
