@@ -13,11 +13,11 @@ setwd(paste0(getwd(),"/data_raw"))
   
   # Assuming the file is in current working directory
   for (i in 1:length(con)){
-    tab <- read_excel("merR_rawData_0-2000nM.xlsx", sheet = i) %>%
+    tab <- read_excel("data_raw/merR_rawData_0-2000nM.xlsx", sheet = i) %>%
       set_names(cn)  
     tab <- tab %>%  set_names(cn)
     t <- tab %>% select(time)
-    od <- tab %>% select(od1:od9)
+    od <- tab %>% select(od1:od9) %>% mutate_all(~.-0.1)
     od <- od - 0.1
     flu <- tab %>% select(flu1:flu9)
     phi <- flu/od
@@ -39,7 +39,7 @@ setwd(paste0(getwd(),"/data_raw"))
   r <- 1:9
   names <- c("time", paste0("od", r), paste0("flu", r), paste0("phi", r), 
              paste0("gr", r), paste0("pr", r), "conc")
-  tidy_base <- bind_rows(base1, base2, base3, base4, base5, base6, base7, base8, base9) %>%
+  tidy_base <- bind_rows(base1, base2, base3, base4, base5, base6, base7, base8, base9,base10, base11, base12) %>%
     set_names(names)
   
   time <- tidy_base %>% select(time)

@@ -5,25 +5,25 @@ library(minpack.lm)
 #--------------------------------- merR ---------------------------------------------------------------------
 {
   
-  #blc <- tidy_Hg_Hlim %>% 
-    #filter(time > 0.5 & time <= 2.5 & Hg == min(Hg)) %>% 
-    #select(time, phi)%>%
-    #rename(bl = phi)
+  blc <- tidy_Hg_Hlim %>% 
+    filter(time > 0.5 & time <= 2.5 & Hg == min(Hg)) %>% 
+    select(time, phi)%>%
+    rename(bl = phi)
   
-  #merR_tab <- tidy_Hg_Hlim %>% 
-    #filter(time > 0.5 & time <= 2.5) %>% 
-    #left_join(blc, by="time") %>%
-    #mutate(phi = phi - bl) %>%
-    #group_by(Hg) %>%
-    #summarize(phi = max(phi))
+  merR_tab <- tidy_Hg_Hlim %>% 
+    filter(time > 0.5 & time <= 2.5) %>% 
+    left_join(blc, by="time") %>%
+    mutate(phi = phi - bl) %>%
+    group_by(Hg) %>%
+    summarize(phi = max(phi))
   
   # == a Hg_slopes
-  merR_tab <- tidy_Hg_Hlim %>% 
-    filter(between(time, 2, 8)) %>%
-    group_by(Hg)%>%
-    summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"])
+ # merR_tab <- tidy_Hg_Hlim %>% 
+ #  filter(between(time, 2, 8)) %>%
+  #  group_by(Hg)%>%
+  #  summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"])
   
-  model <- nls(slope~a*((Hg^k) /((Hg^k) + (b^k))), 
+  model <- nls(phi~a*((Hg^k) /((Hg^k) + (b^k))), 
                     data = merR_tab%>%filter(Hg!=2000),
                     start = list(a=2000, b=100, k =1), 
                algorithm = 'port', lower=c(0,0,1))
@@ -82,25 +82,25 @@ library(minpack.lm)
 merR_plot
 #--------------------------------- CymR ---------------------------------------------------------------------
 {
-  #blc <- tidy_j23_Hlim %>% 
-    #filter(time > 0.5, cumate == min(cumate)) %>% 
-    #select(time, phi)%>%
-    #rename(bl = phi)
+  blc <- tidy_j23_Hlim %>% 
+    filter(time > 0.5, cumate == min(cumate)) %>% 
+    select(time, phi)%>%
+    rename(bl = phi)
   
-  #CymR_tab <- tidy_j23_Hlim%>% 
-    #filter(time > 0.5) %>% 
-    #left_join(blc, by="time")%>%
-    #mutate(phi = phi - bl) %>%
-    #group_by(cumate) %>%
-    #summarize(phi = max(phi))
+  CymR_tab <- tidy_j23_Hlim%>% 
+    filter(time > 0.5) %>% 
+    left_join(blc, by="time")%>%
+    mutate(phi = phi - bl) %>%
+    group_by(cumate) %>%
+    summarize(phi = max(phi))
   
-  CymR_tab <- tidy_j23_Hlim %>% 
-    filter(time < 3) %>%
-    group_by(cumate)%>%
-    summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"],
-              b=lm(production_rate~growth_rate)$coefficients["(Intercept)"])
+  #CymR_tab <- tidy_j23_Hlim %>% 
+   # filter(time < 3) %>%
+    #group_by(cumate)%>%
+    #summarize(slope=lm(production_rate~growth_rate)$coefficients["growth_rate"],
+              #b=lm(production_rate~growth_rate)$coefficients["(Intercept)"])
   
-  model <- nls(slope~a*((cumate^k) /((cumate^k) + (b^k))), 
+  model <- nls(phi~a*((cumate^k) /((cumate^k) + (b^k))), 
                data = CymR_tab,
                start = list(a=2000, b=100, k =1), 
                algorithm = 'port', lower=c(0,0,1))

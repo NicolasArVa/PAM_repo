@@ -1,0 +1,6 @@
+install.packages("tidyverse")
+install.packages("tidyverse")
+install.packages("ggpubr")
+install.packages("caret")
+install.packages("minpack.lm")
+install.packages("expandFunctions")
