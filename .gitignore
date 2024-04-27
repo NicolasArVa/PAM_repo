@@ -7,3 +7,5 @@
 *.tiff
 *.png
 data_raw/
+ACS_formated figures/
+ACS_formated figures SUPP/
