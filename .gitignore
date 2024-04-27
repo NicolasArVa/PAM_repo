@@ -12,5 +12,6 @@ ACS_formated figures SUPP/
 *.xls
 *.tiff
 *.png
+*.svg
 *.zip
 *.csv
