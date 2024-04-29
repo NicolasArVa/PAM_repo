@@ -10,7 +10,7 @@ dirs <- list.dirs() %>% .[grep(., pattern = "^\\./dahlin_dir\\d.*")]
 
 pre_processing_dahlin <- function(file){
   #file <- paths[5]
-  test <- read_xlsx(file)
+  test <- read_xlsx(file, .name_repair = "minimal")
   n <- (nrow(test) - 65)/6
   
   test2 <- test[c(5:(5 + n), (n*4 + 6):(n*5 + 5)),]
@@ -45,37 +45,87 @@ pre_processing_dahlin <- function(file){
                 values_from = value,
                 names_sep = "_")
   
-  blank <- test6 %>%
-    filter(cumate %in% c("sin nada", "MCG")) %>% 
-    arrange(cumate, time)
-  
   test7 <- test6 %>%
-    filter(!cumate %in% c("sin nada", "MCG")) %>% 
-    mutate(cumate = str_replace_all(cumate, "1mM", "1000"),
-           cumate = str_replace_all(cumate, "\\D", ""),
-           cumate = as.numeric(cumate)) %>%
+    mutate(cumate = str_replace_all(cumate, "1\\s?-?mM", "1000"),
+           cumate = str_replace_all(cumate, "(?<=\\d{1,4})\\D*", ""))
+  
+  strain <- str_extract(file, pattern = ".*gfp\\s([A-Za-z\\d]*)(-extended)?.*", group = 1)
+  test8 <- test7 %>% 
+    mutate(strain = rep(strain, nrow(.)), .after = cumate)
+  
+  return(test8)
+}
+processing <- function(x){
+  # x <- list[[1]]
+  data <- x %>% arrange(cumate, time)
+  headers <- c("optical_density", "fluorescence", "phi", 
+               "growth_rate", "production_rate", "phi_rate")
+  
+  t <- data %>% select(time)
+  condition <- data %>% select(cumate)
+  strain <- data %>% select(strain)
+  optical_density <- data %>% select(matches("OD_\\d*")) %>% mutate_all(~.-0.08)
+  fluorescence <- data %>% select(matches("flu_\\d*"))
+  phi <- fluorescence/optical_density
+  
+  diff_od <- apply(optical_density, 2, diff)
+  diff_flu <- apply(fluorescence, 2, diff)
+  diff_phi <- apply(phi, 2, diff)
+  diff_t <- apply(t, 2, diff) %>% ifelse(. <= 0, mean(.), .)
+  
+  growth_rate <- diff_od/(optical_density[1:nrow(diff_od),]*diff_t)
+  production_rate <- diff_flu/(optical_density[1:nrow(diff_flu),]*diff_t)
+  phi_rate <- apply(diff_phi, 2, function(x) x/diff_t)
+  
+  for(j in seq_along(headers)){
+    x <- apply(get(headers[j]), 1, function(x) mean(x, na.rm = T))
+    n <- paste0(headers[j], "_mean")
+    assign(n,x)
+    
+    y <- apply(get(headers[j]), 1, function(x) sd(x, na.rm = T)/sqrt(sum(!is.na(x))))
+    m <- paste0(headers[j], "_se")
+    assign(m,y)
+  }
+  
+  data_list <- mget(c(paste0(a, "_mean"), paste0(a, "_se")))
+  # Find the maximum length of vectors
+  max_length <- max(sapply(data_list, length))
+  # Pad with NA's the gaps
+  frame <- sapply(data_list, function(x) {
+    length_diff <- max_length - length(x)
+    c(x, rep(NA, length_diff))
+  })
+  
+  finalTable <- bind_cols(time = t, cumate = condition, strain = strain, frame) %>%
+    as_tibble() %>%
     arrange(cumate, time)
   
-  dir <- str_replace(file, "\\.xlsx?$", "")
-  write.csv(blank, file = paste0(dir, "-blank.csv"))
-  write.csv(test7, file = paste0(dir, "-data.csv"))
-  
-  return(list(blank = blank, data = test7))
+  return(finalTable)
 }
-dir_preprocessing <- function(dirName){
+dir_processing <- function(dir, subdir = "xlsx"){
+  #dir <- dirs[1]
+  #subdir <- "xlsx"
+  dirName <- paste0(dir, "/", subdir)
   files <- list.files(dirName, pattern = "^pUC-cymR-.*-gfp.*")
   paths <- paste0(dirName,"/", files) %>% sort
 
   list <- lapply(paths, pre_processing_dahlin)
-  names(list) <- str_extract(paths, ".*pUC-cymR-.*-gfp\\s(.*)\\.xlsx", group = 1)
-  assign(dirName, list)
+  processedList <- lapply(list, processing)
+  table <- bind_rows(processedList)
+  return(table)
 }
 
-allLists <- lapply(dirs, dir_preprocessing)
-names(allLists) <- str_extract(dirs, "^\\./(.*)", group = 1) 
+dahlin_essays <- lapply(dirs, dir_processing)
+names(dahlin_essays) <- str_extract(dirs, pattern = ".*_dir\\d+-(.*)", group = 1)
 
-names(allLists)
-allLists %>% View
+dahlin_essays_extended <- lapply(c(dirs[1], dirs[4]), 
+                        function(x){dir_processing(x, subdir = "xlsx-extended")})
+names(dahlin_essays_extended) <- str_extract(c(dirs[1], dirs[4]), 
+                                             pattern = ".*_dir\\d+-(.*)", 
+                                             group = 1)
 
-allLists[[4]] %>% names
-allLists$`dahlin_dir7-highCellDensity-inducer`$`BL21_01-expanded`$data
+
+test <- paste0(dirs[3], "/xlsx/pUC-cymR-J23-gfp BLR.xlsx")
+pre_processing_dahlin(test) %>% processing
+
+dirs[3]
