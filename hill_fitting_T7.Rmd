@@ -1,0 +1,396 @@
+---
+title: "T7 data procesing"
+author: "Nicolas"
+date: "2024-05-21"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+```{r}
+library(tidyverse)
+library(ggpubr)
+library(rlang)
+```
+
+## Defining the hill function
+```{r}
+
+hill <- function(x, H, k, n){
+  H*(x^n)/((x^n)+(k^n) + 1e-5) # added a small constant to avoid zeros on the denominator
+}
+```
+
+## Phi regression
+```{r}
+
+# Blank data using the values of the non induces cases
+t7_cases <- tidy_DE3_Hlim %>%
+  split(list(.$strain, .$rep), drop = T)
+tidy_DE3_Hlim_blanked <- lapply(t7_cases, function(x){
+  blank <- x %>% 
+    filter(inductor == 0) %>%
+    .$phi
+  
+  x %>%
+    group_by(inductor) %>%
+    mutate(phi = phi - blank)%>%
+    ungroup()
+}) %>% bind_rows()
+
+# Generate the summary table for the phi maxima
+phi_table <- tidy_DE3_Hlim_blanked %>%
+  filter(time < 10) %>%
+  summarise(max_phi = max(phi), .by = c(strain, inductor, rep)) %>%
+  group_by(strain, inductor)%>%
+  summarise(phi = mean(max_phi), phi_sd = sd(max_phi), phi_se = sd(max_phi)/(n()^0.5))
+
+# Hill function fitting
+results <- lapply(split(phi_table, phi_table$strain), function(x){
+  model <- nls(phi~hill(inductor, H, k, n),
+               data = x,
+               start = list(H = 5000, k = 10, n = 1),
+               algorithm = "port", lower = c(0,0,1),
+               weights = 1/((x$phi_sd)^2 + 1e-4))
+  cons <- summary(model) %>% coef()
+  
+  phi_hat <- predict(model, tibble(inductor = 0:1000))
+  tab <- tibble(strain = x$strain[1], phi_hat = phi_hat, inductor = 0:1000)
+  list(constants = cons, prediction = tab)
+})
+
+# Extract results from the regression
+phi_constants <- lapply(results, function(x) x$constants)
+phi_curves <- lapply(results, function(x) x$prediction) %>% bind_rows()
+
+# Plot results
+phi_table %>%
+  ggplot(aes(inductor, phi, shape = strain))+
+  geom_point()+
+  geom_line(data = phi_curves, aes(inductor, phi_hat))+
+  ylim(c(0,15000))
+
+```
+
+## Slope regression
+```{r}
+
+# Blank data using the values of the non induces cases
+t7_cases <- tidy_DE3_Hlim %>%
+  filter(between(time, 0, 14)) %>%
+  split(list(.$strain, .$rep), drop = T)
+t7_cases_blanked <- lapply(t7_cases, function(x){
+  blank <- x %>% 
+    filter(inductor == 0) %>%
+    .$pr
+  
+  x %>%
+    group_by(inductor) %>%
+    mutate(pr = pr - blank)%>%
+    ungroup()
+}) %>% bind_rows()
+
+# filter using the  time where the mean growth rate is statistically zero (alpha = 0.05), identifying the exponential phase
+points <- t7_cases_blanked %>% split(list(.$strain, .$inductor, .$time), drop = T)
+time_selection <- lapply(points, function(x){ 
+  data <- x$gr
+  test <- t.test(data, mu = 0)
+  tibble(time = x$time[1], strain = x$strain[1], inductor = x$inductor[1],
+         `gr = 0` = test$p.value >= 0.05)
+}) %>% bind_rows() %>% arrange(strain, inductor, time) %>%
+  split(list(.$strain, .$inductor), drop = T)
+
+t_table <- lapply(time_selection, function(x){
+  x[x$`gr = 0`,] %>%
+    filter(time > 2) %>%
+    summarise(strain = strain[1], inductor = inductor[1], t = min(time))
+}) %>% bind_rows %>% arrange(strain, inductor)
+
+tidy_DE3_exp <- t7_cases_blanked %>% left_join(t_table) %>%
+  group_by(strain, inductor) %>%
+  filter(time < t) %>% 
+  ungroup
+tidy_DE3_exp_list <- tidy_DE3_exp %>%
+  split(list(.$strain, .$inductor), drop = T)
+
+# Linear regression: production rate vs growth rate
+slope_table <- lapply(tidy_DE3_exp_list, function(x){
+  tab <- x %>% filter(time > 2.5, gr > 0)
+  model <- lm(pr~gr, data = tab)
+  tab <- summary(model) %>% coef()
+  tibble(inductor = x$inductor[1], strain = x$strain[1], 
+         m = tab[2,1], m_err = tab[2,2],
+         b = tab[1,1], b_err = tab[1,2])
+}) %>% bind_rows() %>% arrange(strain, inductor)
+
+# Hill function fitting
+results <- lapply(split(slope_table, slope_table$strain), function(x){
+  model <- nls(m~hill(inductor, H, k, n),
+               data = x,
+               start = list(H = 5000, k = 10, n = 1),
+               algorithm = "port", lower = c(0,0,1),
+               weights = 1/((x$m_err)^2 + 1e-4))
+  cons <- summary(model) %>% coef()
+  
+  m_hat <- predict(model, tibble(inductor = 0:1000))
+  tab <- tibble(strain = x$strain[1], m_hat = m_hat, inductor = 0:1000)
+  list(constants = cons, prediction = tab)
+})
+
+# Extract results from the regression
+slope_constants <- lapply(results, function(x) x$constants)
+slope_curves <- lapply(results, function(x) x$prediction) %>% bind_rows()
+
+# Plot the results
+slope_table %>%
+  ggplot(aes(inductor, m, shape = strain))+
+  geom_point()+
+  geom_line(data = slope_curves, aes(inductor, m_hat))+
+  ylim(c(0,15000))
+
+```
+
+## Combining both graphs
+
+```{r}
+
+# Data wrangling
+a <- phi_table %>% mutate(mode = "phi[H]~maxima", label = "A") %>% rename(value = phi, se = phi_se) #%>% select(-phi_sd)
+b <- slope_table %>% mutate(mode = "slope", label = "B") %>% rename(value = m, se = m_err)
+c <- a %>% bind_rows(b) %>% mutate(mode = factor(mode))
+
+x <- phi_curves %>% mutate(mode = "phi[H]~maxima") %>% rename(value = phi_hat)
+y <- slope_curves %>% mutate(mode = "slope") %>% rename(value = m_hat)
+z <- x %>% bind_rows(y) %>% mutate(mode = factor(mode))
+
+# Final plot
+strain_cols <- c("BL21 lacI"="#e60049", "BLR"="#0bb4ff", 
+                 "BLR lacI"="#50e991","MG1655"="#ffa300", 
+                 "MG1655 lacI"="#9b19f5")
+
+DE3_plot <- c %>%
+  filter(inductor > 0) %>%
+  ggplot(aes(inductor/1000, value/1000, shape = strain))+
+  theme_classic()+
+  geom_errorbar(aes(ymin = value/1000 -se/1000,
+                    ymax = value/1000 + se/1000),
+                linewidth = 0.2)+
+  geom_point(aes(shape = strain, color = strain), size = 2)+
+  geom_text(aes(0.1,13, label = label))+
+  geom_line(data = z, aes(inductor/1000, value/1000, linetype = strain),
+            show.legend = F)+
+  facet_wrap(~mode, labeller=label_parsed)+
+  xlab("IPTG concentration (mM)")+
+  ylab(expression(10^3~FU~OD[600]^-1))+
+  scale_y_continuous(limit = c(0,14), breaks = seq(0, 14, by = 4))+
+  scale_shape_manual(values = c("MG1655" = 1, "BLR" = 0, 
+                                "MG1655 lacI" = 13, "BLR lacI" = 7, 
+                                "BL21 lacI" = 2), 
+                     name = "Strain",
+                     labels= eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  scale_color_manual(name = 'Strain',
+                       values = strain_cols,
+                       labels = eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  scale_linetype_manual(values = c("MG1655" = 3, "BLR" = 2, 
+                                   "MG1655 lacI" = 3, "BLR lacI" = 2, 
+                                   "BL21 lacI" = 1), 
+                        name = "Strain",
+                        labels= eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  theme(plot.margin = margin(1,1,1,1, "mm"),
+        #legend.position = "top",
+        legend.title = element_text(size = unit(6, "mm"), face = "bold"),
+        legend.text = element_text(size = unit(6, "mm")),
+        legend.box.margin = margin(0, 0, 0, 0),
+        legend.key.size = unit(5, "mm"),
+        axis.title.x = element_text(size = unit(9, "mm"), vjust = -1),
+        axis.title.y = element_text(size = unit(9, "mm"), vjust = 1),
+        axis.text.x = element_text(size = unit(8, "mm")),
+        axis.text.y = element_text(size = unit(8, "mm")),
+        strip.text = element_text(size = unit(8, "mm")),
+        strip.background = element_rect(color = 'white'),
+        aspect.ratio=1/1.5)
+DE3_plot
+
+```
+```{r}
+
+# Data wrangling
+a <- phi_table %>% mutate(mode = "phi[H]~maxima", label = "A") %>% 
+  rename(value = phi, se = phi_se) %>% 
+  mutate(mode = factor(mode))
+b <- slope_table %>% mutate(mode = "slope", label = "B") %>% 
+  rename(value = m, se = m_err) %>% 
+  mutate(mode = factor(mode))
+
+x <- phi_curves %>% mutate(mode = "phi[H]~maxima") %>% 
+  rename(value = phi_hat) %>% 
+  mutate(mode = factor(mode))
+y <- slope_curves %>% mutate(mode = "slope") %>% 
+  rename(value = m_hat) %>% 
+  mutate(mode = factor(mode))
+
+```
+
+
+```{r}
+
+# Final plot
+strain_cols <- c("BL21 lacI"="#e60049", "BLR"="#0bb4ff", 
+                 "BLR lacI"="#50e991","MG1655"="#ffa300", 
+                 "MG1655 lacI"="#9b19f5")
+
+DE3_plot_phi <- a %>%
+  filter(inductor > 0) %>%
+  ggplot(aes(inductor/1000, value/1000, shape = strain))+
+  theme_classic()+
+  geom_errorbar(aes(ymin = value/1000 -se/1000,
+                    ymax = value/1000 + se/1000),
+                linewidth = 0.2)+
+  geom_point(aes(shape = strain, color = strain), size = 2)+
+  #geom_text(aes(0.1,13, label = label))+
+  geom_line(data = x, aes(inductor/1000, value/1000, linetype = strain),
+            show.legend = F)+
+  #facet_wrap(~mode, labeller=label_parsed)+
+  xlab("IPTG concentration (mM)")+
+  ylab(expression(10^3~FU~OD[600]^-1))+
+  scale_y_continuous(limit = c(0,14), breaks = seq(0, 14, by = 4))+
+  scale_shape_manual(values = c("MG1655" = 1, "BLR" = 0, 
+                                "MG1655 lacI" = 13, "BLR lacI" = 7, 
+                                "BL21 lacI" = 2), 
+                     name = "Strain",
+                     labels= eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  scale_color_manual(name = 'Strain',
+                     values = strain_cols,
+                     labels = eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  scale_linetype_manual(values = c("MG1655" = 3, "BLR" = 2, 
+                                   "MG1655 lacI" = 3, "BLR lacI" = 2, 
+                                   "BL21 lacI" = 1), 
+                        name = "Strain",
+                        labels= eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  theme(plot.margin = margin(1,1,1,1, "mm"),
+        #legend.position = "top",
+        legend.box.spacing = unit(0, "cm"), 
+        legend.title = element_blank(),
+        legend.text = element_text(size = unit(6, "mm")),
+        legend.box.margin = margin(0, 0, 0, 0),
+        #legend.key.size = unit(5, "mm"),
+        axis.title.x = element_text(size = unit(9, "mm"), vjust = -1),
+        axis.title.y = element_text(size = unit(9, "mm"), vjust = 1),
+        axis.text.x = element_text(size = unit(8, "mm")),
+        axis.text.y = element_text(size = unit(8, "mm")),
+        strip.text = element_text(size = unit(8, "mm")),
+        strip.background = element_rect(color = 'white'),
+        aspect.ratio=1/1)
+DE3_plot_phi
+
+ggsave("Figure3.tiff", DE3_plot_phi, width = 3.25, height = 2.17, units = "in", dpi = 1200)
+#ggsave("Figure3.png", DE3_plot_phi, width = 3.25, height = 2.17, units = "in", dpi = 1200)
+```
+
+## Production vs. Growth plot
+
+```{r}
+
+strain_cols_grid <- c("BL21 +lacI^OV"="#e60049", "BLR"="#0bb4ff", 
+                 "BLR +lacI^OV"="#50e991","MG1655"="#ffa300", 
+                 "MG1655 +lacI^OV"="#9b19f5")
+
+reg <- tidy_DE3_exp %>% 
+  filter(! inductor %in% c(1,10,80,125,500), gr > 0, time > 2.5) %>%
+  mutate(strain=str_replace(strain,"lacI", "+lacI^OV"),
+         inductor=factor(str_replace(inductor, "$", "~mu*M"), c("0~mu*M","62~mu*M","100~mu*M","250~mu*M","1000~mu*M")))
+
+phi_reg <- phi_table %>% filter(! inductor %in% c(1,10,80,125,500)) %>%
+  mutate(strain=str_replace(strain,"lacI", "+lacI^OV"),
+         inductor=factor(str_replace(inductor, "$", "~mu*M"),c("0~mu*M","62~mu*M","100~mu*M","250~mu*M","1000~mu*M")))
+
+test <- tidy_DE3_exp %>% 
+  filter(! inductor %in% c(1,10,80,125,500), gr > 0) %>%
+  mutate(strain=str_replace(strain,"lacI", "+lacI^OV"),
+         inductor=factor(str_replace(inductor, "$", "~mu*M"), c("0~mu*M","62~mu*M","100~mu*M","250~mu*M","1000~mu*M")))
+
+slope_grid <- reg %>% 
+  filter(! inductor %in% c(1,80,125,500), gr > 0)%>%
+  ggplot(aes(gr,pr/1000))+
+  theme_classic()+
+  geom_point(data = test, aes(gr,pr/1000), shape = 20, size = 1, color = "gray")+
+  geom_point(aes(color = strain), shape = 20, size = 1.5, show.legend = F)+
+  geom_smooth(method = "lm", color = "black",fullrange = T,
+              linetype = "dashed", linewidth = 0.8)+
+  geom_abline(data = phi_reg,
+              aes(slope = phi/1000, intercept = 0), color = "blue")+
+  facet_grid(strain~inductor, labeller=label_parsed, switch = "y")+
+  scale_color_manual(name = 'Strain',
+                       values = strain_cols_grid,
+                       labels = eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  ylim(c(0,7))+
+  ylab(expression(Production~rate~(10^3*FU~OD[600]^-1*h^-1)))+
+  xlab(expression(Growth~rate~(h^-1)))+
+  theme(plot.margin = margin(2,2,2,2, "mm"),
+        strip.text = element_text(size = unit(9, "mm")),
+        strip.placement = "outside",
+        axis.title.x = element_text(size = unit(9, "mm"), vjust = -1),
+        axis.title.y = element_text(size = unit(9, "mm"), vjust = 2),
+        axis.text.x = element_blank(),
+        axis.text.y = element_blank())+
+  theme(aspect.ratio=1/1)
+slope_grid
+```
+```{r}
+
+strain_cols <- c("BL21~lacI^OV"="#e60049", "BLR"="#0bb4ff", 
+                 "BLR~lacI^OV"="#50e991","MG1655"="#ffa300", 
+                 "MG1655~lacI^OV"="#9b19f5")
+
+lines <- y %>%
+  mutate(strain=str_replace(strain," lacI", "~lacI^OV"))
+
+
+DE3_plot <- b %>%
+  mutate(strain=str_replace(strain," lacI", "~lacI^OV")) %>%
+  filter(inductor > 0) %>%
+  ggplot(aes(inductor/1000, value/1000))+
+  theme_classic()+
+  geom_errorbar(aes(ymin = value/1000 -se/1000,
+                    ymax = value/1000 + se/1000),
+                linewidth = 0.2)+
+  geom_point(aes(color = strain), size = 3)+
+  geom_line(data = lines, aes(inductor/1000, value/1000),
+            show.legend = F)+
+  facet_grid(strain~mode,# ncol=1, strip.position = "right", 
+             labeller=label_parsed, scales  = "free")+
+  xlab("[IPTG]")+
+  xlim(c(0,1.05))+
+  ylab(expression(Slope~(10^3~FU~OD[600]^-1)))+
+  scale_y_continuous(limit = c(0,14), 
+                     breaks = seq(0, 14, by = 4), 
+                     position = "left")+
+  scale_color_manual(name = 'Strain',
+                     values = strain_cols,
+                     labels = eval(parse_exprs(c("BL21~lacI^OV", "BLR", "BLR~lacI^OV","MG1655", "MG1655~lacI^OV"))))+
+  theme(plot.margin = margin(2,2,2,2, "mm"),
+        legend.position = "none",
+        legend.title = element_text(size = unit(6, "mm"), face = "bold"),
+        legend.text = element_text(size = unit(6, "mm")),
+        legend.box.margin = margin(0, 0, 0, 0),
+        legend.key.size = unit(5, "mm"),
+        axis.title.x = element_text(size = unit(9, "mm"), vjust = -1),
+        axis.title.y = element_text(size = unit(9, "mm"), vjust = 1),
+        axis.text.x = element_blank(),
+        axis.text.y = element_text(size = unit(8, "mm")),
+        strip.text = element_text(size = unit(8, "mm")),
+        strip.text.y = element_blank(),
+        aspect.ratio=1/1)
+
+figure4 <- ggarrange(slope_grid, DE3_plot, labels = c("A", "B"), widths = c(5,1.36))
+figure4
+
+ggsave("Figure4.tiff", figure4, width = 174, height = 138, units = "mm", dpi = 1200)
+#ggsave("Figure4.png", figure4, width = 174, height = 138, units = "mm", dpi = 1200)
+```

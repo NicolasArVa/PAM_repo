@@ -4,62 +4,42 @@ library(readxl)
 library(magrittr)
 
 {
-  cn <- c("time", "od1", "od2","od3","od4", "od5", "od6","od7","od8", "od9", 
-          "-", "flu1", "flu2", "flu3", "flu4", "flu5", "flu6", "flu7", "flu8", "flu9")
-  
-  
   con <- c(0,1,2,5,10,25,50,125,250,500,1000,2000) # merR concentrations 
-  
+  list <- list()
   
   # Assuming the file is in current working directory
   for (i in 1:length(con)){
     tab <- read_excel("data_raw/merR_rawData_0-2000nM.xlsx", sheet = i) %>%
-      set_names(cn)  
-    tab <- tab %>%  set_names(cn)
-    t <- tab %>% select(time) %>% slice(1:56)
-    od <- tab %>% select(od1:od9) %>% slice(1:56) %>% mutate_all(~.-0.1)
-    flu <- tab %>% select(flu1:flu9) %>% slice(5:n())
-    phi <- flu/od
+      set_names(c("time", paste0("od.", 1:9), "-", paste0("flu.", 1:9)))
+    
+    od <- tab %>% select(matches("od.*")) %>% slice(1:(nrow(.)-4)) %>% mutate_all(~.-0.08)
+    flu <- tab %>% select(matches("flu.*")) %>% slice(5:nrow(.))
+    phi <- as_tibble(flu/od) %>% 
+      set_names(str_replace(names(.), "flu", "phi"))
     
     diff_od <- apply(od, 2, diff)
     diff_flu <- apply(flu, 2, diff)
-    diff_t <- apply(t, 2, diff)
+    diff_phi <- apply(phi, 2, diff)
+    dt <- diff(tab$time)[1:nrow(diff_od)]
+    denom <- apply(od[1:length(dt),], 2, function(x) x*dt)
     
-    gr <- diff_od/(od*diff_t)
-    pr <- diff_flu/(od*diff_t)
+    gr <- as_tibble(diff_od/denom) %>% 
+      set_names(str_replace(names(.), "od", "gr"))
+    pr <- as_tibble(diff_flu/denom) %>% 
+      set_names(str_replace(names(.), "flu", "pr"))
+    phir <- apply(diff_phi, 2, function(x) x/dt) %>% 
+      as_tibble %>%
+      set_names(str_replace(names(.), "phi", "phir"))
     
-    base <- bind_cols(t, od, flu, phi, gr, pr) %>% 
-      mutate(conc = con[i])
-    
-    bn <- paste0("base", i)
-    assign(bn, base)
+    list[[i]] <- tibble(time = tab$time[1:nrow(gr)], inductor = con[i], strain = "Neb", 
+                   od[1:nrow(gr),], flu[1:nrow(gr),], phi[1:nrow(gr),], 
+                   gr, pr, phir) %>% 
+      pivot_longer(cols = matches("[a-z]*\\.\\d*"), 
+                   names_to = c("measure", "rep"), 
+                   names_sep = "\\.",
+                   values_to = "value") %>%
+      pivot_wider(names_from = measure, values_from = value) %>%
+      arrange(rep, time)
   }
-  
-  r <- 1:9
-  names <- c("time", paste0("od", r), paste0("flu", r), paste0("phi", r), 
-             paste0("gr", r), paste0("pr", r), "conc")
-  tidy_base <- bind_rows(base1, base2, base3, base4, base5, base6, base7, base8, base9,base10, base11, base12) %>%
-    set_names(names)
-  
-  time <- tidy_base %>% select(time)
-  conc <- tidy_base %>% select(conc)
-  
-  od <- tidy_base %>% select(od1:od9) %>% apply(1, mean)
-  flu <- tidy_base %>% select(flu1:flu9) %>% apply(1, mean)
-  phi <- tidy_base %>% select(phi1:phi9) %>% apply(1, mean)
-  gr <- tidy_base %>% select(gr1:gr9) %>% apply(1, mean)
-  pr <- tidy_base %>% select(pr1:pr9) %>% apply(1, mean)
-  
-  od_se <- tidy_base %>% select(od1:od9) %>% apply(1, sd) %>% divide_by(sqrt(9))
-  flu_se <- tidy_base %>% select(flu1:flu9) %>% apply(1, sd) %>% divide_by(sqrt(9))
-  phi_se <- tidy_base %>% select(phi1:phi9) %>% apply(1, sd) %>% divide_by(sqrt(9))
-  gr_se <- tidy_base %>% select(gr1:gr9) %>% apply(1, sd) %>% divide_by(sqrt(9))
-  pr_se <- tidy_base %>% select(pr1:pr9) %>% apply(1, sd) %>% divide_by(sqrt(9))
-  
-  tidy_Hg_Hlim_test <- bind_cols(time, conc, od, flu, phi, gr, pr, 
-                            od_se, flu_se, phi_se, gr_se, pr_se) %>% 
-    set_names(c("time", "Hg", "od", "fluorescence", 
-                "phi", "growth_rate", "production_rate",
-                "od_se", "fluorescence_se", 
-                "phi_se", "growth_rate_se", "production_rate_se"))
+  tidy_Hg_Hlim <- list %>% bind_rows
 }

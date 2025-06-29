@@ -1,17 +1,29 @@
+.gitignore
+# R project files
 .Rproj.user
 .Rhistory
 .RData
 .Ruserdata
+
 data_raw/
-Figures/
+pngFigures/
+tiffFigures/
 Figures support/
 ACS_formated figures
 ACS_formated figures/
 ACS_formated figures SUPP/
-*.xlsx
-*.xls
-*.tiff
-*.png
-*.svg
-*.zip
-*.csv
+manuscripts/
+dir*/
+
+**/*.xlsx
+**/*.xls
+**/*.tiff
+**/*.png
+**/*.svg
+**/*.zip
+**/*.csv
+
+sacar data de las tablas de dahlin_ALT.R
+plot dahlin data.R
+
+**/*test.*
