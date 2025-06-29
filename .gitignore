@@ -15,6 +15,7 @@ ACS_formated figures SUPP/
 manuscripts/
 dir*/
 
+hg_system_fluorescence_shi
 **/*.xlsx
 **/*.xls
 **/*.tiff
@@ -26,4 +27,4 @@ dir*/
 sacar data de las tablas de dahlin_ALT.R
 plot dahlin data.R
 
-**/*test.*
+hg_system_fluorescence_shift_*.R
