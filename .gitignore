@@ -1,14 +1,17 @@
 .gitignore
 # R project files
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.Renviron
 
+data_tidy/
 data_raw/
 pngFigures/
 tiffFigures/
 Figures support/
+python_code/
 ACS_formated figures
 ACS_formated figures/
 ACS_formated figures SUPP/
@@ -22,7 +25,7 @@ hg_system_fluorescence_shi
 **/*.png
 **/*.svg
 **/*.zip
-**/*.csv
+**/**.csv
 
 sacar data de las tablas de dahlin_ALT.R
 plot dahlin data.R
